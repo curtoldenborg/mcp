@@ -1,0 +1,5 @@
+          {
+          "name": "test_tool_creation3",
+          "description": "A simple test tool to verify create, compile and execute all work. Returns a status and current date/time.",
+          "inputSchema": { "type": "object", "properties": {}, "required": [] }
+        }

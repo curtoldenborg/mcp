@@ -1,0 +1,110 @@
+ADD TABLE "mcp_scheduled_task"
+  AREA "Schema Area"
+  LABEL "MCP Scheduled Task"
+  DUMP-NAME "mcp_sched"
+
+ADD FIELD "task_id" OF "mcp_scheduled_task" AS integer
+  LABEL "Task ID"
+  COLUMN-LABEL "Task ID"
+  INITIAL "0"
+  MANDATORY
+
+ADD FIELD "task_name" OF "mcp_scheduled_task" AS character
+  LABEL "Task Name"
+  COLUMN-LABEL "Task Name"
+  FORMAT "x(80)"
+  MANDATORY
+
+ADD FIELD "task_type" OF "mcp_scheduled_task" AS character
+  LABEL "Task Type"
+  COLUMN-LABEL "Type"
+  FORMAT "x(40)"
+
+ADD FIELD "task_status" OF "mcp_scheduled_task" AS character
+  LABEL "Status"
+  COLUMN-LABEL "Status"
+  FORMAT "x(20)"
+  INITIAL "PENDING"
+
+ADD FIELD "scheduled_time" OF "mcp_scheduled_task" AS datetime-tz
+  LABEL "Scheduled Time"
+  COLUMN-LABEL "Scheduled"
+  MANDATORY
+
+ADD FIELD "executed_time" OF "mcp_scheduled_task" AS datetime-tz
+  LABEL "Executed Time"
+  COLUMN-LABEL "Executed"
+
+ADD FIELD "n8n_endpoint" OF "mcp_scheduled_task" AS character
+  LABEL "n8n Endpoint"
+  FORMAT "x(200)"
+  INITIAL "http://localhost:5678/webhook/pasoe"
+
+ADD FIELD "tool_name" OF "mcp_scheduled_task" AS character
+  LABEL "Tool Name"
+  FORMAT "x(80)"
+
+ADD FIELD "tool_arguments" OF "mcp_scheduled_task" AS char
+  LABEL "Tool Arguments"
+
+ADD FIELD "chat_input" OF "mcp_scheduled_task" AS char
+  LABEL "Chat Input"
+
+ADD FIELD "notify_email" OF "mcp_scheduled_task" AS character
+  LABEL "Notify Email"
+  FORMAT "x(200)"
+
+ADD FIELD "notify_subject" OF "mcp_scheduled_task" AS character
+  LABEL "Notify Subject"
+  FORMAT "x(200)"
+
+ADD FIELD "recurrence" OF "mcp_scheduled_task" AS character
+  LABEL "Recurrence"
+  FORMAT "x(20)"
+  INITIAL "ONCE"
+
+ADD FIELD "recurrence_interval" OF "mcp_scheduled_task" AS integer
+  LABEL "Recurrence Interval"
+  INITIAL "1"
+
+ADD FIELD "max_retries" OF "mcp_scheduled_task" AS integer
+  LABEL "Max Retries"
+  INITIAL "3"
+
+ADD FIELD "retry_count" OF "mcp_scheduled_task" AS integer
+  LABEL "Retry Count"
+  INITIAL "0"
+
+ADD FIELD "last_error" OF "mcp_scheduled_task" AS char
+  LABEL "Last Error"
+
+ADD FIELD "n8n_response" OF "mcp_scheduled_task" AS char
+  LABEL "n8n Response"
+
+ADD FIELD "created_by" OF "mcp_scheduled_task" AS character
+  LABEL "Created By"
+  FORMAT "x(40)"
+  INITIAL "claude"
+
+ADD FIELD "created_at" OF "mcp_scheduled_task" AS datetime-tz
+  LABEL "Created At"
+
+ADD FIELD "updated_at" OF "mcp_scheduled_task" AS datetime-tz
+  LABEL "Updated At"
+
+ADD INDEX "pk_task_id" ON "mcp_scheduled_task"
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "task_id" ASCENDING
+
+ADD INDEX "ix_status_scheduled" ON "mcp_scheduled_task"
+  AREA "Schema Area"
+  INDEX-FIELD "task_status" ASCENDING
+  INDEX-FIELD "scheduled_time" ASCENDING
+
+ADD INDEX "ix_task_type" ON "mcp_scheduled_task"
+  AREA "Schema Area"
+  INDEX-FIELD "task_type" ASCENDING
+
+.

@@ -1,0 +1,120 @@
+
+
+====== Start exception logging == "C:\projects\pasoem8m\m8m\SQLExplorer.exceptions" opened == Sun Mar 16 11:30:07 CET 2025 ======
+
+
+**** 1 ****
+
+   Exception at Sun Mar 16 11:30:07 CET 2025: java.sql.SQLException
+   Message (throw): ### Connect stack trace. ###
+   Message (excp):  [DataDirect][OpenEdge JDBC Driver][OpenEdge] Access denied(Authorisation failed)
+   Stack Trace:
+java.sql.SQLException: [DataDirect][OpenEdge JDBC Driver][OpenEdge] Access denied(Authorisation failed)
+	at com.ddtek.jdbc.openedge.client.ddd.ax(Unknown Source)
+	at com.ddtek.jdbc.openedge.client.ddd.j(Unknown Source)
+	at com.ddtek.jdbc.openedge.OpenEdgeImplConnection.j(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.b(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.k(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.b(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.a(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseDriver.connect(Unknown Source)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:683)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:230)
+	at com.progress.sql.explorer.SQLConnectServer.call(SQLConnectServer.java:41)
+	at com.progress.common.rmiregistry.TryIt.run(TryIt.java:221)
+
+
+====== Start exception logging == "C:\projects\pasoem8m\m8m\SQLExplorer.exceptions" opened == Sun Mar 16 11:30:40 CET 2025 ======
+
+
+**** 2 ****
+
+   Exception at Sun Mar 16 11:30:40 CET 2025: java.sql.SQLException
+   Message (throw): ### Connect stack trace. ###
+   Message (excp):  [DataDirect][OpenEdge JDBC Driver][OpenEdge] Access denied(Authorisation failed)
+   Stack Trace:
+java.sql.SQLException: [DataDirect][OpenEdge JDBC Driver][OpenEdge] Access denied(Authorisation failed)
+	at com.ddtek.jdbc.openedge.client.ddd.ax(Unknown Source)
+	at com.ddtek.jdbc.openedge.client.ddd.j(Unknown Source)
+	at com.ddtek.jdbc.openedge.OpenEdgeImplConnection.j(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.b(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.k(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.b(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.a(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseDriver.connect(Unknown Source)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:683)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:230)
+	at com.progress.sql.explorer.SQLConnectServer.call(SQLConnectServer.java:41)
+	at com.progress.common.rmiregistry.TryIt.run(TryIt.java:221)
+
+
+====== Start exception logging == "C:\projects\pasoem8m\m8m\SQLExplorer.exceptions" opened == Sun Mar 16 11:30:46 CET 2025 ======
+
+
+**** 3 ****
+
+   Exception at Sun Mar 16 11:30:46 CET 2025: java.sql.SQLException
+   Message (throw): ### Connect stack trace. ###
+   Message (excp):  [DataDirect][OpenEdge JDBC Driver][OpenEdge] Access denied(Authorisation failed)
+   Stack Trace:
+java.sql.SQLException: [DataDirect][OpenEdge JDBC Driver][OpenEdge] Access denied(Authorisation failed)
+	at com.ddtek.jdbc.openedge.client.ddd.ax(Unknown Source)
+	at com.ddtek.jdbc.openedge.client.ddd.j(Unknown Source)
+	at com.ddtek.jdbc.openedge.OpenEdgeImplConnection.j(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.b(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.k(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.b(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.a(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseDriver.connect(Unknown Source)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:683)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:230)
+	at com.progress.sql.explorer.SQLConnectServer.call(SQLConnectServer.java:41)
+	at com.progress.common.rmiregistry.TryIt.run(TryIt.java:221)
+
+
+====== Start exception logging == "C:\projects\pasoem8m\m8m\SQLExplorer.exceptions" opened == Sun Mar 16 11:32:58 CET 2025 ======
+
+
+**** 4 ****
+
+   Exception at Sun Mar 16 11:32:58 CET 2025: java.sql.SQLException
+   Message (throw): ### Connect stack trace. ###
+   Message (excp):  [DataDirect][OpenEdge JDBC Driver][OpenEdge] Access denied(Authorisation failed)
+   Stack Trace:
+java.sql.SQLException: [DataDirect][OpenEdge JDBC Driver][OpenEdge] Access denied(Authorisation failed)
+	at com.ddtek.jdbc.openedge.client.ddd.ax(Unknown Source)
+	at com.ddtek.jdbc.openedge.client.ddd.j(Unknown Source)
+	at com.ddtek.jdbc.openedge.OpenEdgeImplConnection.j(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.b(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.k(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.b(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.a(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseDriver.connect(Unknown Source)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:683)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:230)
+	at com.progress.sql.explorer.SQLConnectServer.call(SQLConnectServer.java:41)
+	at com.progress.common.rmiregistry.TryIt.run(TryIt.java:221)
+
+
+====== Start exception logging == "C:\projects\pasoem8m\m8m\SQLExplorer.exceptions" opened == Sun Mar 16 11:33:54 CET 2025 ======
+
+
+**** 5 ****
+
+   Exception at Sun Mar 16 11:33:54 CET 2025: java.sql.SQLException
+   Message (throw): ### Connect stack trace. ###
+   Message (excp):  [DataDirect][OpenEdge JDBC Driver][OpenEdge] Access denied(Authorisation failed)
+   Stack Trace:
+java.sql.SQLException: [DataDirect][OpenEdge JDBC Driver][OpenEdge] Access denied(Authorisation failed)
+	at com.ddtek.jdbc.openedge.client.ddd.ax(Unknown Source)
+	at com.ddtek.jdbc.openedge.client.ddd.j(Unknown Source)
+	at com.ddtek.jdbc.openedge.OpenEdgeImplConnection.j(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.b(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.k(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.b(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseConnection.a(Unknown Source)
+	at com.ddtek.jdbc.openedgebase.BaseDriver.connect(Unknown Source)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:683)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:230)
+	at com.progress.sql.explorer.SQLConnectServer.call(SQLConnectServer.java:41)
+	at com.progress.common.rmiregistry.TryIt.run(TryIt.java:221)

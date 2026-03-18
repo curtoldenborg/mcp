@@ -1,0 +1,54 @@
+{
+  "name": "create_abl_tool",
+  "description": "Creates and registers a new ABL class as an MCP tool. The tool becomes immediately available after creation.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "tool_name": {
+        "type": "string",
+        "description": "Name of the new tool, e.g. 'get_overdue_invoices'."
+      },
+      "tool_description": {
+        "type": "string",
+        "description": "Description shown to the AI so it knows when to use this tool."
+      },
+      "abl_code": {
+        "type": "string",
+        "description": "The full ABL Execute method body."
+      },
+      "parameters": {
+        "type": "array",
+        "description": "Input parameters the tool accepts.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "type": { "type": "string", "enum": ["string", "number", "boolean"] },
+            "description": { "type": "string" },
+            "required": { "type": "boolean" }
+          },
+          "required": ["name", "type"]
+        }
+      },
+      "temp_tables": {
+        "type": "array",
+        "description": "Optional temp-table definitions.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "fields": { "type": "string" },
+            "indexes": { "type": "string" }
+          },
+          "required": ["name", "fields"]
+        }
+      }
+    },
+    "required": [
+      "tool_name",
+      "tool_description",
+      "abl_code",
+      "parameters"
+    ]
+  }
+}

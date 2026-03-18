@@ -1,0 +1,9 @@
+{
+  "name": "deploy_web_file",
+  "description": "Deploys a web file (HTML, JS, CSS) to the PASOE web root at C:\projects\pasoem8m\m8m\web\. Takes filename and file_content and writes the file to the PASOE web directory, making it immediately accessible via the PASOE HTTP server.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"filename": {"type": "string", "description": "The filename to write, e.g. pasoe_access_log.html"},"file_content": {"type": "string", "description": "The full text content of the file to write"},"subfolder": {"type": "string", "description": "Optional subfolder under the web root, e.g. 'tools'. Leave empty for web root."}},
+    "required": ["filename","file_content"]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "compile_abl_tool",
+  "description": "Compiles an ABL class file by tool name and returns any compiler errors or warnings. Use this to validate ABL code before or after creating a tool with create_abl_tool.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "toolName": {
+        "type": "string",
+        "description": "Name of the tool to compile, e.g. 'get_customer_data'"
+      }
+    },
+    "required": [
+      "toolName"
+    ]
+  }
+}

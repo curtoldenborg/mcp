@@ -1,0 +1,9 @@
+{
+  "name": "load_df_file",
+  "description": "Loads an OpenEdge .df file into the database using the proload command line utility. Requires the database name/connection string.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"df_file": {"type": "string", "description": "Full path to the .df file"},"db_conn": {"type": "string", "description": "Database connection string e.g. C:/mydb or -db mydb -H localhost -S 3000"}},
+    "required": ["df_file"]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "read_pasoe_access_log",
+  "description": "Reads the PASOE localhost-access log file for a given date (defaults to today) and returns the log lines along with a count of HTTP 200 responses. Use this to inspect PASOE access logs and monitor successful requests.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "log_date": {
+        "type": "string",
+        "description": "Date of the log file in yyyy-mm-dd format. Defaults to today if not provided."
+      }
+    },
+    "required": []
+  }
+}

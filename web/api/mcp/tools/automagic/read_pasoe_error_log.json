@@ -1,0 +1,9 @@
+{
+  "name": "read_pasoe_error_log",
+  "description": "Reads the PASOE agent error log and returns errors/warnings base64-encoded to safely handle special characters.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"log_date": {"type": "string", "description": "Date to read log for in YYYY-MM-DD format. Defaults to today."}},
+    "required": []
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": [
+          {
+            "SalesYear": 2023,
+            "SalesMonth": 7,
+            "TotalSales": 10619652.54
+          },
+          {
+            "SalesYear": 2023,
+            "SalesMonth": 4,
+            "TotalSales": 8948480.27
+          },
+          {
+            "SalesYear": 2023,
+            "SalesMonth": 3,
+            "TotalSales": 8799782.4
+          },
+          {
+            "SalesYear": 2023,
+            "SalesMonth": 8,
+            "TotalSales": 10751477.42
+          },
+          {
+            "SalesYear": 2023,
+            "SalesMonth": 9,
+            "TotalSales": 45181.05
+          },
+          {
+            "SalesYear": 2023,
+            "SalesMonth": 5,
+            "TotalSales": 10232661.24
+          },
+          {
+            "SalesYear": 2023,
+            "SalesMonth": 6,
+            "TotalSales": 9464512.46
+          },
+          {
+            "SalesYear": 2025,
+            "SalesMonth": 3,
+            "TotalSales": 33.9
+          }
+        ]
+      }
+    ],
+    "isError": false
+  }
+}

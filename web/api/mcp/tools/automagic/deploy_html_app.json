@@ -1,0 +1,9 @@
+{
+  "name": "deploy_html_app",
+  "description": "Deploys an HTML application to the PASOE ROOT web directory at C:\progress\OE128_64_WRK\oepas1\webapps\ROOT. Provide a subfolder name (e.g. 'myapp') and the full HTML content as a string. The tool writes the content as index.html inside that subfolder, creating the folder if needed. Returns the public URL path where the app can be accessed.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"app_name": {"type": "string", "description": "Subfolder name for the app, e.g. 'myapp'. Use a single word or hyphenated name, no spaces."},"html_content": {"type": "string", "description": "Full HTML content to write as index.html in the app subfolder."},"filename": {"type": "string", "description": "Optional filename to use instead of index.html, e.g. 'dashboard.html'."}},
+    "required": ["app_name","html_content"]
+  }
+}

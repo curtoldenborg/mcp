@@ -1,0 +1,443 @@
+ 
+
+
+USING Progress.Json.ObjectModel.*.
+USING Progress.Lang.*.
+USING OpenEdge.Net.*.
+USING OpenEdge.Net.HTTP.*.
+USING OpenEdge.Web.*.
+
+
+BLOCK-LEVEL ON ERROR UNDO, THROW.
+
+CLASS web.api.rest.mcp INHERITS OpenEdge.Web.WebHandler: 
+     
+    DEFINE PROTECTED VARIABLE RequestBodyLogFileName  AS CHAR INIT 'c:\temp\mcp_req_master_log.txt' NO-UNDO.
+    DEFINE PROTECTED VARIABLE ResponseBodyLogFileName AS CHAR INIT 'c:\temp\mcp_res_master_log.txt' NO-UNDO.
+    
+    METHOD OVERRIDE PROTECTED INTEGER HandlePost(INPUT poRequest AS OpenEdge.Web.IWebRequest):
+        DEFINE VARIABLE eMcpMethodEnum AS web.api.mcp.methodenum NO-UNDO.     
+
+        doLogBodyToFile(CAST(poRequest:Entity, JsonObject),RequestBodyLogFileName).
+        eMcpMethodEnum = getMcpMethod(poRequest).  
+     
+        CASE eMcpMethodEnum:
+            WHEN web.api.mcp.methodenum:Initialize                THEN  mcp_Initialize(poRequest).
+            WHEN web.api.mcp.methodenum:Notifications_Initialized THEN  mcp_notifications_initialized(poRequest).
+            WHEN web.api.mcp.methodenum:Notifications_Cancelled   THEN  mcp_notifications_Cancelled  (poRequest).
+            WHEN web.api.mcp.methodenum:Tools_List                THEN  mcp_Tools_List(poRequest).
+            WHEN web.api.mcp.methodenum:Tools_Call                THEN  mcp_Tools_call(poRequest).
+            WHEN web.api.mcp.methodenum:Resources_List            THEN  mcp_Resources_List(poRequest).
+            
+            OTHERWISE  
+            UNDO, THROW NEW Progress.Lang.AppError("Not supported MCP Method!" ).
+        END CASE.
+        
+        RETURN 0.
+
+        /*
+        CATCH e AS Progress.Lang.Error:
+            DEFINE VARIABLE iLoop AS INTEGER NO-UNDO.
+            DEFINE VARIABLE cFullErr AS CHARACTER NO-UNDO.
+        
+           /* 1. Build a detailed error string: "Error 75: Record not found | Error 123: ..." */
+            DO iLoop = 1 TO e:NumMessages:
+                cFullErr = cFullErr 
+                         + (IF cFullErr > "" THEN " | " ELSE "") 
+                         + "Error " + STRING(e:GetMessageNum(iLoop)) + ": " 
+                         + e:GetMessage(iLoop).
+            END.
+        
+            /* 2. Log it specifically for server-side debugging */
+            LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("MCP Tool Failure [&1]: &2", cClassName, cFullErr), "ERR").
+
+            oResponse = NEW OpenEdge.Web.WebResponse().
+            oResponse:StatusCode  = INTEGER(StatusCodeEnum:OK). // 200 OK
+            oResponse:ContentType = "application/json":u.
+            oJsonResponse = web.api.mcp.tools.base.tool:CreateErrorResponse(iRequestid,cFullErr).
+            oResponse:Entity = oJsonResponse.
+            oWriter = NEW WebResponseWriter(oResponse).
+            oWriter:Open().
+            oWriter:Close().
+            RETURN 0.
+                
+        END CATCH.
+        */
+                
+    END METHOD.
+  
+  
+    METHOD PROTECTED web.api.mcp.methodenum getMcpMethod(INPUT poRequest AS OpenEdge.Web.IWebRequest):
+        DEFINE VARIABLE cMethod   AS CHARACTER              NO-UNDO. 
+        DEFINE VARIABLE eMethod   AS web.api.mcp.methodenum NO-UNDO. 
+        DEFINE VARIABLE oJsonBody AS JsonObject             NO-UNDO.
+       
+        IF TYPE-OF(poRequest:Entity, JsonObject) THEN 
+        DO:
+            oJsonBody = CAST(poRequest:Entity, JsonObject).
+            IF oJsonBody:Has("method") THEN 
+            DO:
+                cMethod = oJsonBody:GetCharacter("method").
+                eMethod = web.api.mcp.methodenum:GetEnum(REPLACE(cMethod, "/", "_")) NO-ERROR.
+            END. 
+            ELSE  LOG-MANAGER:WRITE-MESSAGE("Missing method in body!","ERR").  
+        END.     
+        ELSE  LOG-MANAGER:WRITE-MESSAGE("Missing jsonobject in body!","ERR").  
+        LOG-MANAGER:WRITE-MESSAGE("Request " + cMethod ,"REQ").  
+        RETURN eMethod.            
+    END. 
+  
+    METHOD PROTECTED VOID doLogBodyToFile(INPUT oRequestJson AS jsonobject,filename AS CHARACTER):
+        DEFINE VARIABLE cRawJson AS LONGCHAR NO-UNDO.
+       
+       // cRawJson = CAST(poRequest:Entity, JsonObject):GetJsonText().
+        cRawJson = oRequestJson:GetJsonText().
+        if LENGTH(cRawJson) GE 3000 THEN cRawJson = " --- too long --- ".
+        OUTPUT TO VALUE(filename) APPEND.
+           PUT UNFORMATTED  STRING(NOW) + " | " + STRING(cRawJson) SKIP.
+        OUTPUT CLOSE.
+    END. 
+  
+  
+    METHOD PROTECTED INTEGER mcp_notifications_initialized(INPUT poRequest AS OpenEdge.Web.IWebRequest):
+        DEFINE VARIABLE oResponse AS OpenEdge.Net.HTTP.IHttpResponse NO-UNDO.
+        DEFINE VARIABLE oWriter   AS OpenEdge.Web.WebResponseWriter  NO-UNDO.
+   
+        oResponse = NEW WebResponse().
+        oResponse:StatusCode  = INTEGER(StatusCodeEnum:OK). // 200 OK
+        oResponse:ContentType = "application/json":u.
+        oWriter = NEW WebResponseWriter(oResponse).
+        oWriter:Open().
+        oWriter:Close().
+    END. 
+
+    METHOD PROTECTED INTEGER mcp_Resources_List(INPUT poRequest AS OpenEdge.Web.IWebRequest):
+        DEFINE VARIABLE oResponse AS OpenEdge.Net.HTTP.IHttpResponse NO-UNDO.
+        DEFINE VARIABLE oWriter   AS OpenEdge.Web.WebResponseWriter  NO-UNDO.
+   
+        oResponse = NEW WebResponse().
+        oResponse:StatusCode  = INTEGER(StatusCodeEnum:OK). // 200 OK
+        oResponse:ContentType = "application/json":u.
+        oWriter = NEW WebResponseWriter(oResponse).
+        oWriter:Open().
+        oWriter:Close().
+    /*       
+   ~{
+     "resources": [
+       ~{
+         "id": "file:readme",
+         "name": "README.md",
+         "description": "Project readme file",
+         "mimeType": "text/markdown"
+       ~},
+       ~{
+         "id": "db:customers",
+         "name": "Customer Table",
+         "description": "CRM customer database table",
+         "mimeType": "application/json"
+       ~}
+     ]
+   ~}
+   */        
+        
+    END. 
+
+    METHOD PROTECTED INTEGER mcp_notifications_Cancelled(INPUT poRequest AS OpenEdge.Web.IWebRequest):
+        DEFINE VARIABLE oResponse AS OpenEdge.Net.HTTP.IHttpResponse NO-UNDO.
+        DEFINE VARIABLE oWriter   AS OpenEdge.Web.WebResponseWriter  NO-UNDO.
+   
+        oResponse = NEW WebResponse().
+        oResponse:StatusCode  = INTEGER(StatusCodeEnum:OK). // 200 OK
+        oResponse:ContentType = "application/json":u.
+        oWriter = NEW WebResponseWriter(oResponse).
+        oWriter:Open().
+        oWriter:Close().
+    END. 
+
+    
+    METHOD PROTECTED INTEGER mcp_tools_call(INPUT poRequest AS OpenEdge.Web.IWebRequest):
+  
+        DEFINE VARIABLE oRequest      AS JsonObject                      NO-UNDO.
+        DEFINE VARIABLE oParams       AS JsonObject                      NO-UNDO.
+        DEFINE VARIABLE oArguments    AS JsonObject                      NO-UNDO.
+        DEFINE VARIABLE cMethod       AS CHARACTER                       NO-UNDO.
+        DEFINE VARIABLE cToolName     AS CHARACTER                       NO-UNDO.
+        DEFINE VARIABLE cClassName    AS CHARACTER                       NO-UNDO. 
+        DEFINE VARIABLE oTool         AS web.api.mcp.tools.base.tool     NO-UNDO.
+        DEFINE VARIABLE oJsonResponse AS JsonObject                      NO-UNDO.
+        DEFINE VARIABLE oResponse     AS OpenEdge.Net.HTTP.IHttpResponse NO-UNDO.
+        DEFINE VARIABLE oWriter       AS OpenEdge.Web.WebResponseWriter  NO-UNDO.
+        DEFINE VARIABLE iRequestId    AS INTEGER                         NO-UNDO.
+       
+        oRequest = CAST(poRequest:Entity, JsonObject).
+         
+        IF oRequest:Has("id") THEN iRequestId = oRequest:GetInteger("id").
+        
+        /* 1. Navigate into "params" to get tool metadata */
+        oParams   = oRequest:GetJsonObject("params").
+        cToolName = oParams:GetCharacter("name"). /* "toolname class" */
+        cClassName = "web.api.mcp.tools." + cToolName.
+   
+        LOG-MANAGER:WRITE-MESSAGE("Exec tool:" + cToolname + " id:" + STRING(iRequestId)).
+  
+        oResponse = NEW OpenEdge.Web.WebResponse().
+        oResponse:StatusCode  = INTEGER(StatusCodeEnum:OK). // 200 OK
+        oResponse:ContentType = "application/json":u.
+     
+        /* 2. Dynamically instantiate the class */
+        /* This requires the class to have a default (no-arg) constructor */
+        oTool = DYNAMIC-NEW cClassName().
+
+        /* 3. Execute and get results */
+  
+        oArguments = oParams:GetJsonObject("arguments") no-error.
+        oJsonResponse  = oTool:Execute(iRequestId,oArguments).
+        
+        oResponse:Entity = oJsonResponse.
+        
+        doLogBodyToFile(oJsonResponse,ResponseBodyLogFileName).
+        
+        oWriter = NEW WebResponseWriter(oResponse).
+        oWriter:Open().
+        oWriter:Close().
+        
+        
+        CATCH e AS Progress.Lang.Error:
+            DEFINE VARIABLE iLoop AS INTEGER NO-UNDO.
+            DEFINE VARIABLE cFullErr AS CHARACTER NO-UNDO.
+        
+           /* 1. Build a detailed error string: "Error 75: Record not found | Error 123: ..." */
+            DO iLoop = 1 TO e:NumMessages:
+                cFullErr = cFullErr 
+                         + (IF cFullErr > "" THEN " | " ELSE "") 
+                         + "Error " + STRING(e:GetMessageNum(iLoop)) + ": " 
+                         + e:GetMessage(iLoop).
+            END.
+        
+            /* 2. Log it specifically for server-side debugging */
+            LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("MCP Tool Failure [&1]: &2", cClassName, cFullErr), "ERR").
+
+            oJsonResponse = web.api.mcp.tools.base.tool:CreateMcpResponseTextIsError(iRequestid,cFullErr).
+            oResponse:Entity = oJsonResponse.
+            oWriter = NEW WebResponseWriter(oResponse).
+            oWriter:Open().
+            oWriter:Close().
+            LOG-MANAGER:WRITE-MESSAGE("Error - sendt", "ERR").
+                    
+        END CATCH.
+        
+    END. 
+
+  
+    METHOD PROTECTED INTEGER mcp_tools_list(INPUT poRequest AS OpenEdge.Web.IWebRequest):
+  
+        DEFINE VARIABLE oResponse   AS OpenEdge.Net.HTTP.IHttpResponse NO-UNDO.
+        DEFINE VARIABLE oWriter     AS OpenEdge.Web.WebResponseWriter  NO-UNDO.
+        DEFINE VARIABLE oTools      AS web.api.mcp.tools               NO-UNDO. 
+        DEFINE VARIABLE oRoot       AS JsonObject                      NO-UNDO.
+        DEFINE VARIABLE oResult     AS JsonObject                      NO-UNDO.
+        DEFINE VARIABLE oToolsArray AS jsonArray                       NO-UNDO. 
+     
+        oResponse = NEW OpenEdge.Web.WebResponse().
+        oResponse:StatusCode  = INTEGER(StatusCodeEnum:OK). // 200 OK
+        oResponse:ContentType = "application/json":u.
+
+        oWriter = NEW WebResponseWriter(oResponse).
+  
+        oTools    = NEW web.api.mcp.tools().
+        oRoot     = NEW JsonObject().
+        oRoot:Add("jsonrpc", "2.0").
+        oRoot:Add("id", 1).
+  
+        oResult   = NEW JsonObject().
+        oToolsArray = oTools:getRegisteredtools(). 
+        oResult:Add("tools",oToolsArray).
+        oRoot:Add("result", oResult).
+         
+def var lcJson as longchar no-undo. 
+oRoot:Write(lcJson, TRUE, "UTF-8").
+COPY-LOB FROM lcJson TO FILE "c:/temp/response.json".
+    
+        oResponse:Entity = oRoot.
+        LOG-MANAGER:WRITE-MESSAGE('mcp_tools_list:Complete','LOG').
+        doLogBodyToFile(oRoot,ResponseBodyLogFileName).
+    
+        oWriter = NEW WebResponseWriter(oResponse).
+        oWriter:Open().
+        oWriter:Close().
+        
+        FINALLY:
+            delete object oResult. 
+            DELETE OBJECT owriter. 
+            delete object oRoot. 
+            delete object oTools. 
+            delete object oResponse.    
+        END FINALLY.
+        
+    /*
+    DEFINE VARIABLE resp AS LONGCHAR. 
+    resp = '
+~{
+"jsonrpc": "2.0",
+"id": 1,
+"result": ~{
+"tools": [
+  ~{
+    "name": "read_progress_db",
+    "description": "Queries the OpenEdge database using a standard ABL WHERE clause.",
+    "inputSchema": ~{
+      "type": "object",
+      "properties": ~{
+        "tableName": ~{ "type": "string", "description": "The table name (e.g., Customer)" ~},
+        "whereClause": ~{ "type": "string", "description": "The ABL filter (e.g., CustNum < 50)" ~}
+      ~},
+      "required": ["tableName", "whereClause"]
+    ~}
+  ~},
+  ~{
+    "name": "send_office365_email",
+    "description": "Sends an email through the corporate mail server.",
+    "inputSchema": ~{
+      "type": "object",
+      "properties": ~{
+        "to": ~{ "type": "string", "format": "email" ~},
+        "subject": ~{ "type": "string" ~},
+        "body": ~{ "type": "string" ~}
+      ~},
+      "required": ["to", "subject", "body"]
+    ~}
+  ~}
+  ,
+  ~{
+    "name": "powerpoint_for_pug",
+    "description": "powerpoint presentation for pug (progress user group) meeting 2026, the best there is about ai and telerik components",
+    "inputSchema": ~{
+      "type": "object",
+      "properties": ~{
+        "to": ~{ "type": "string", "format": "email" ~},
+        "subject": ~{ "type": "string" ~},
+        "body": ~{ "type": "string" ~}
+      ~},
+      "required": ["to", "subject", "body"]
+    ~}
+  ~},
+  ~{
+    "name": "sales_pr_month",
+    "description": "Returns json list of sales pr month",
+    "inputSchema": ~{
+      "type": "object",
+      "properties": ~{~},
+      "required": []
+    ~}
+  ~}
+      
+]
+~}
+~}'.  
+    oWriter:Write(resp).
+    oWriter:Open().
+    oWriter:Close().
+*/
+    END. 
+    
+    METHOD PROTECTED INTEGER mcp_initialize(INPUT poRequest AS OpenEdge.Web.IWebRequest):
+
+        DEFINE VARIABLE response   AS WebResponse                     NO-UNDO.
+        DEFINE VARIABLE oResponse  AS OpenEdge.Net.HTTP.IHttpResponse NO-UNDO.
+        DEFINE VARIABLE oWriter    AS OpenEdge.Web.WebResponseWriter  NO-UNDO.
+        DEFINE VARIABLE oRoot      AS JsonObject                      NO-UNDO.
+        DEFINE VARIABLE oResult    AS JsonObject                      NO-UNDO.
+        DEFINE VARIABLE oServInfo  AS JsonObject                      NO-UNDO.
+        DEFINE VARIABLE oRequest   AS JsonObject                      NO-UNDO.
+        DEFINE VARIABLE iRequestId AS INTEGER                         INIT 0 NO-UNDO.
+       
+        oRequest = CAST(poRequest:Entity, JsonObject).
+        IF oRequest:Has("id") THEN iRequestId = oRequest:GetInteger("id").
+  
+
+        /* 1. Build the nested JSON hierarchy */
+        oRoot     = NEW JsonObject().
+        oResult   = NEW JsonObject().
+        oServInfo = NEW JsonObject().
+
+        oServInfo:Add("name", "Sports2000_database").
+        oServInfo:Add("version", "1.0.0").
+
+        /* Add capabilities as empty objects as per your sample */
+        oResult:Add("protocolVersion", "2025-11-25").
+        oResult:Add("capabilities",    NEW JsonObject()).
+        oResult:GetJsonObject("capabilities"):Add("tools",     NEW JsonObject()).
+        oResult:GetJsonObject("capabilities"):Add("resources", NEW JsonObject()).
+        oResult:GetJsonObject("capabilities"):Add("logging",   NEW JsonObject()).
+        oResult:Add("serverInfo",      oServInfo).
+
+        oRoot:Add("jsonrpc", "2.0").
+        oRoot:Add("id", iRequestId).
+        oRoot:Add("result", oResult).
+
+        //oRoot:WriteFile("c:\temp\mcp_response_sent.json", TRUE, "UTF-8").
+        
+        /* 2. Prepare the HTTP Response */
+        oResponse = NEW WebResponse().
+        oResponse:StatusCode  = INTEGER(StatusCodeEnum:OK). // 200 OK
+        oResponse:ContentType = "application/json":u.
+        oResponse:Entity      = oRoot.
+
+        /* 3. Write and Close the response stream */
+        oWriter = NEW WebResponseWriter(oResponse).
+        oWriter:Open().
+        oWriter:Close().
+       
+        FINALLY:
+            DELETE OBJECT oResponse NO-ERROR.
+            DELETE OBJECT oWriter NO-ERROR. 
+            DELETE OBJECT oRoot NO-ERROR.     
+        END FINALLY.
+    END. 
+         
+    METHOD OVERRIDE PROTECTED INTEGER HandleGet(INPUT poRequest AS OpenEdge.Web.IWebRequest):
+        LOG-MANAGER:WRITE-MESSAGE("Method=" + quoter(poRequest:Method),"REQUEST").
+
+        DEFINE VARIABLE oResponse AS OpenEdge.Net.HTTP.IHttpResponse NO-UNDO.
+        DEFINE VARIABLE oWriter   AS OpenEdge.Web.WebResponseWriter  NO-UNDO.
+        DEFINE VARIABLE oRoot     AS JsonObject                      NO-UNDO.
+
+        oRoot     = NEW JsonObject().
+        oRoot:Add("status", "mcp-endpoint").
+      
+        IF poRequest:Method = "GET" THEN 
+        DO:
+            oResponse = NEW WebResponse().
+            oResponse:StatusCode  = INTEGER(StatusCodeEnum:OK). // 200 OK
+            oResponse:ContentType = "application/json":u.
+            oResponse:Entity = oRoot.
+            oWriter = NEW WebResponseWriter(oResponse).
+            oWriter:Open().
+            oWriter:Close().
+        END. 
+        
+        RETURN 0.
+        
+        FINALLY:
+            DELETE OBJECT oResponse NO-ERROR.
+            DELETE OBJECT oWriter NO-ERROR. 
+            DELETE OBJECT oRoot NO-ERROR.     
+        END FINALLY.
+    END.
+        
+    
+    /* PUT - save */
+    METHOD OVERRIDE PROTECTED INTEGER HandlePut(INPUT poRequest AS OpenEdge.Web.IWebRequest):
+        LOG-MANAGER:WRITE-MESSAGE("Method=" + quoter(poRequest:Method),"REQUEST").
+        UNDO, THROW NEW Progress.Lang.AppError("METHOD NOT IMPLEMENTED").
+    END. 
+    METHOD OVERRIDE PROTECTED INTEGER HandleNotAllowedMethod( INPUT poRequest AS OpenEdge.Web.IWebRequest ):
+        UNDO, THROW NEW Progress.Lang.AppError("METHOD NOT IMPLEMENTED").
+    END METHOD.
+
+    METHOD OVERRIDE PROTECTED INTEGER HandleNotImplemented( INPUT poRequest AS OpenEdge.Web.IWebRequest ):
+        UNDO, THROW NEW Progress.Lang.AppError("METHOD NOT IMPLEMENTED").
+    END METHOD.    
+    
+END CLASS.
+

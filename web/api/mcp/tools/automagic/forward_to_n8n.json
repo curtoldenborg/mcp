@@ -1,0 +1,9 @@
+{
+  "name": "forward_to_n8n",
+  "description": "Forwards a chat message to a local n8n webhook (http://localhost:5678/webhook/pasoe) and returns the response. Supports custom session_id, action, and endpoint overrides.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"chat_input": {"type": "string", "description": "The message or prompt to forward to the n8n webhook."},"session_id": {"type": "string", "description": "Session ID for the n8n workflow. Defaults to 2001."},"action": {"type": "string", "description": "Action to send. Defaults to sendMessage."},"endpoint": {"type": "string", "description": "n8n webhook URL. Defaults to http://localhost:5678/webhook/pasoe."}},
+    "required": ["chat_input"]
+  }
+}

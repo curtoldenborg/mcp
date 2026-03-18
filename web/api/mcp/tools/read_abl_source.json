@@ -1,0 +1,9 @@
+{
+  "name": "read_abl_source",
+  "description": "Reads the ABL source (.cls) and tool definition (.json) for a given tool name. Returns both files to help inspect and debug tool implementations.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"toolName": {"type": "string", "description": "Name of the tool to read source and JSON definition for."}},
+    "required": ["toolName"]
+  }
+}

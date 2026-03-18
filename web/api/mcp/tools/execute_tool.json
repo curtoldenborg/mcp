@@ -1,0 +1,20 @@
+{
+  "name": "execute_tool",
+  "description": "Generic tool executor. Use this to call any MCP tool that is registered on the server but not yet visible in the tool list. Pass the tool class name and a JSON string of arguments.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "toolName": {
+        "type": "string",
+        "description": "The tool class name to execute, e.g. 'get_customer_data'"
+      },
+      "arguments": {
+        "type": "string",
+        "description": "JSON string of arguments to pass to the tool, e.g. '{\"customerName\": \"Sport\", \"country\": \"USA\"}'"
+      }
+    },
+    "required": [
+      "toolName"
+    ]
+  }
+}

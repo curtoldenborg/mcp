@@ -1,0 +1,1 @@
+{ customers(country: \"Finland\") { edges { node { id name orders { edges { node { id orderNum orderDate totalAmount status } } } } } } }

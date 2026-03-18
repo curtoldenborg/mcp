@@ -1,0 +1,5 @@
+          {
+          "name": "restart_pasoe",
+          "description": "Restarts a PASOE instance by running tcman stop then tcman start. Defaults to the oepas1 instance.",
+          "inputSchema": { "type": "object", "properties": {"instance": ~{"type": "string", "description": "Name of the PASOE instance to restart. Defaults to oepas1."},}, "required": [] }
+        }

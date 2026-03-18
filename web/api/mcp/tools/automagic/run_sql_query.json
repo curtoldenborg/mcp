@@ -1,0 +1,9 @@
+{
+  "name": "run_sql_query",
+  "description": "Runs a named stored query against the Sports 2000 OpenEdge database. Queries: top_customers, open_orders, low_stock_items, sales_by_rep, recent_invoices. Filter by param1 CustNum for orders/invoices. Returns up to 50 rows as JSON.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"query_name": {"type": "string", "description": "Stored query: top_customers | open_orders | low_stock_items | sales_by_rep | recent_invoices"},"param1": {"type": "string", "description": "Optional CustNum to filter open_orders or recent_invoices by customer."}},
+    "required": ["query_name"]
+  }
+}

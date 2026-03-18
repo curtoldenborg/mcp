@@ -1,0 +1,9 @@
+{
+  "name": "get_customer_data_sql",
+  "description": "Retrieves customer data from the Sports2000 Customer table using fast SQL-92 engine. Supports optional filters: customerName (partial match), country (exact match), minBalance, maxBalance, salesRep (exact match), and maxRows (default 50). Returns CustNum, Name, City, Country, Phone, EmailAddress, Balance, CreditLimit, SalesRep and Discount. Faster than ABL FOR EACH iteration.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"customerName": {"type": "string", "description": "Partial name filter using SQL LIKE (leave empty for all)"},"country": {"type": "string", "description": "Country filter - exact match (leave empty for all)"},"minBalance": {"type": "number", "description": "Minimum balance filter (leave empty for no lower limit)"},"maxBalance": {"type": "number", "description": "Maximum balance filter (leave empty for no upper limit)"},"salesRep": {"type": "string", "description": "SalesRep code - exact match (leave empty for all)"},"maxRows": {"type": "number", "description": "Maximum number of rows to return, default 50"}},
+    "required": []
+  }
+}

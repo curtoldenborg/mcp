@@ -1,0 +1,42 @@
+{"ttMonthlySales": [
+  {
+    "SalesYear": 2023,
+    "SalesMonth": 7,
+    "TotalSales": 0.0
+  },
+  {
+    "SalesYear": 2023,
+    "SalesMonth": 4,
+    "TotalSales": 0.0
+  },
+  {
+    "SalesYear": 2023,
+    "SalesMonth": 3,
+    "TotalSales": 0.0
+  },
+  {
+    "SalesYear": 2023,
+    "SalesMonth": 8,
+    "TotalSales": 0.0
+  },
+  {
+    "SalesYear": 2023,
+    "SalesMonth": 9,
+    "TotalSales": 0.0
+  },
+  {
+    "SalesYear": 2023,
+    "SalesMonth": 5,
+    "TotalSales": 0.0
+  },
+  {
+    "SalesYear": 2023,
+    "SalesMonth": 6,
+    "TotalSales": 0.0
+  },
+  {
+    "SalesYear": 2025,
+    "SalesMonth": 3,
+    "TotalSales": 0.0
+  }
+]}

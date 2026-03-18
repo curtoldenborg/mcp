@@ -1,0 +1,5 @@
+          {
+          "name": "test_tool_creation",
+          "description": "Simple test tool to verify tool creation works.",
+          "inputSchema": { "type": "object", "properties": {}, "required": [] }
+        }

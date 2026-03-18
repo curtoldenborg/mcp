@@ -1,0 +1,9 @@
+{
+  "name": "get_oe_environment",
+  "description": "Returns the current PROPATH and DLC environment variable to help locate OpenEdge system utilities like _loddl.p.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  }
+}

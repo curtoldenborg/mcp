@@ -1,0 +1,13 @@
+{
+  "name": "get_customer_data",
+  "description": "Retrieves customer data from the Sports2000 Customer table...",
+  "inputSchema": { 
+    "type": "object", 
+    "properties": {
+      "customerName": { "type": "string", "description": "Partial name filter" },
+      "country": { "type": "string", "description": "Country filter" },
+      "maxRows": { "type": "number", "description": "Max rows" }
+    },
+    "required": [] 
+  }
+}
