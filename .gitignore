@@ -1,0 +1,7 @@
+# Ignore the entire temp directory
+temp/
+
+# Ignore OpenEdge temporary/local files
+lbia*
+srta*
+rcda*
