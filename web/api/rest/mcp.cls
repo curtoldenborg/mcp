@@ -34,36 +34,6 @@ CLASS web.api.rest.mcp INHERITS OpenEdge.Web.WebHandler:
         END CASE.
         
         RETURN 0.
-
-        /*
-        CATCH e AS Progress.Lang.Error:
-            DEFINE VARIABLE iLoop AS INTEGER NO-UNDO.
-            DEFINE VARIABLE cFullErr AS CHARACTER NO-UNDO.
-        
-           /* 1. Build a detailed error string: "Error 75: Record not found | Error 123: ..." */
-            DO iLoop = 1 TO e:NumMessages:
-                cFullErr = cFullErr 
-                         + (IF cFullErr > "" THEN " | " ELSE "") 
-                         + "Error " + STRING(e:GetMessageNum(iLoop)) + ": " 
-                         + e:GetMessage(iLoop).
-            END.
-        
-            /* 2. Log it specifically for server-side debugging */
-            LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("MCP Tool Failure [&1]: &2", cClassName, cFullErr), "ERR").
-
-            oResponse = NEW OpenEdge.Web.WebResponse().
-            oResponse:StatusCode  = INTEGER(StatusCodeEnum:OK). // 200 OK
-            oResponse:ContentType = "application/json":u.
-            oJsonResponse = web.api.mcp.tools.base.tool:CreateErrorResponse(iRequestid,cFullErr).
-            oResponse:Entity = oJsonResponse.
-            oWriter = NEW WebResponseWriter(oResponse).
-            oWriter:Open().
-            oWriter:Close().
-            RETURN 0.
-                
-        END CATCH.
-        */
-                
     END METHOD.
   
   
@@ -121,25 +91,6 @@ CLASS web.api.rest.mcp INHERITS OpenEdge.Web.WebHandler:
         oWriter = NEW WebResponseWriter(oResponse).
         oWriter:Open().
         oWriter:Close().
-    /*       
-   ~{
-     "resources": [
-       ~{
-         "id": "file:readme",
-         "name": "README.md",
-         "description": "Project readme file",
-         "mimeType": "text/markdown"
-       ~},
-       ~{
-         "id": "db:customers",
-         "name": "Customer Table",
-         "description": "CRM customer database table",
-         "mimeType": "application/json"
-       ~}
-     ]
-   ~}
-   */        
-        
     END. 
 
     METHOD PROTECTED INTEGER mcp_notifications_Cancelled(INPUT poRequest AS OpenEdge.Web.IWebRequest):
@@ -253,10 +204,11 @@ CLASS web.api.rest.mcp INHERITS OpenEdge.Web.WebHandler:
         oToolsArray = oTools:getRegisteredtools(). 
         oResult:Add("tools",oToolsArray).
         oRoot:Add("result", oResult).
-         
-def var lcJson as longchar no-undo. 
-oRoot:Write(lcJson, TRUE, "UTF-8").
-COPY-LOB FROM lcJson TO FILE "c:/temp/response.json".
+ 
+        // debug - stuff         
+        def var lcJson as longchar no-undo. 
+        oRoot:Write(lcJson, TRUE, "UTF-8").
+        COPY-LOB FROM lcJson TO FILE "c:/temp/response.json".
     
         oResponse:Entity = oRoot.
         LOG-MANAGER:WRITE-MESSAGE('mcp_tools_list:Complete','LOG').
@@ -274,71 +226,8 @@ COPY-LOB FROM lcJson TO FILE "c:/temp/response.json".
             delete object oResponse.    
         END FINALLY.
         
-    /*
-    DEFINE VARIABLE resp AS LONGCHAR. 
-    resp = '
-~{
-"jsonrpc": "2.0",
-"id": 1,
-"result": ~{
-"tools": [
-  ~{
-    "name": "read_progress_db",
-    "description": "Queries the OpenEdge database using a standard ABL WHERE clause.",
-    "inputSchema": ~{
-      "type": "object",
-      "properties": ~{
-        "tableName": ~{ "type": "string", "description": "The table name (e.g., Customer)" ~},
-        "whereClause": ~{ "type": "string", "description": "The ABL filter (e.g., CustNum < 50)" ~}
-      ~},
-      "required": ["tableName", "whereClause"]
-    ~}
-  ~},
-  ~{
-    "name": "send_office365_email",
-    "description": "Sends an email through the corporate mail server.",
-    "inputSchema": ~{
-      "type": "object",
-      "properties": ~{
-        "to": ~{ "type": "string", "format": "email" ~},
-        "subject": ~{ "type": "string" ~},
-        "body": ~{ "type": "string" ~}
-      ~},
-      "required": ["to", "subject", "body"]
-    ~}
-  ~}
-  ,
-  ~{
-    "name": "powerpoint_for_pug",
-    "description": "powerpoint presentation for pug (progress user group) meeting 2026, the best there is about ai and telerik components",
-    "inputSchema": ~{
-      "type": "object",
-      "properties": ~{
-        "to": ~{ "type": "string", "format": "email" ~},
-        "subject": ~{ "type": "string" ~},
-        "body": ~{ "type": "string" ~}
-      ~},
-      "required": ["to", "subject", "body"]
-    ~}
-  ~},
-  ~{
-    "name": "sales_pr_month",
-    "description": "Returns json list of sales pr month",
-    "inputSchema": ~{
-      "type": "object",
-      "properties": ~{~},
-      "required": []
-    ~}
-  ~}
-      
-]
-~}
-~}'.  
-    oWriter:Write(resp).
-    oWriter:Open().
-    oWriter:Close().
-*/
     END. 
+
     
     METHOD PROTECTED INTEGER mcp_initialize(INPUT poRequest AS OpenEdge.Web.IWebRequest):
 
@@ -353,7 +242,6 @@ COPY-LOB FROM lcJson TO FILE "c:/temp/response.json".
        
         oRequest = CAST(poRequest:Entity, JsonObject).
         IF oRequest:Has("id") THEN iRequestId = oRequest:GetInteger("id").
-  
 
         /* 1. Build the nested JSON hierarchy */
         oRoot     = NEW JsonObject().
@@ -394,6 +282,7 @@ COPY-LOB FROM lcJson TO FILE "c:/temp/response.json".
             DELETE OBJECT oRoot NO-ERROR.     
         END FINALLY.
     END. 
+
          
     METHOD OVERRIDE PROTECTED INTEGER HandleGet(INPUT poRequest AS OpenEdge.Web.IWebRequest):
         LOG-MANAGER:WRITE-MESSAGE("Method=" + quoter(poRequest:Method),"REQUEST").
@@ -425,7 +314,6 @@ COPY-LOB FROM lcJson TO FILE "c:/temp/response.json".
         END FINALLY.
     END.
         
-    
     /* PUT - save */
     METHOD OVERRIDE PROTECTED INTEGER HandlePut(INPUT poRequest AS OpenEdge.Web.IWebRequest):
         LOG-MANAGER:WRITE-MESSAGE("Method=" + quoter(poRequest:Method),"REQUEST").

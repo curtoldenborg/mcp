@@ -11,7 +11,7 @@ DEFINE VARIABLE lcDisplay AS LONGCHAR NO-UNDO.
 
 oObject = new web.api.mcp.tools.sales_pr_month().
 
-DEFINE VARIABLE oTool         AS web.api.mcp.tools.basetool  NO-UNDO.          
+DEFINE VARIABLE oTool         AS web.api.mcp.tools.base.tool  NO-UNDO.          
 DEFINE VARIABLE cToolName     AS CHARACTER         NO-UNDO.
 DEFINE VARIABLE cClassName    AS CHARACTER         NO-UNDO. 
  cToolName = "sales_pr_month". 
