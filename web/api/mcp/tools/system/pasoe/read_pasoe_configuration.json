@@ -1,0 +1,9 @@
+{
+  "name": "read_pasoe_configuration",
+  "description": "Reads the full PASOE configuration. Returns environment info (DLC, PROPATH, paths), all key config files (openedge.properties, server.xml, catalina.properties, jvm.options, WEB-INF openedge.properties) and file listings of conf and logs directories.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"instance": {"type": "string", "description": "PASOE instance name. Defaults to oepas1."},"section": {"type": "string", "description": "Section to return: all | environment | config | disk. Defaults to all."}},
+    "required": []
+  }
+}

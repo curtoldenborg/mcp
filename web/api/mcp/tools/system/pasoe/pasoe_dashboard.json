@@ -1,0 +1,9 @@
+{
+  "name": "pasoe_dashboard",
+  "description": "Unified PASOE dashboard.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"port": {"type": "number", "description": "OEManager port."}},
+    "required": []
+  }
+}

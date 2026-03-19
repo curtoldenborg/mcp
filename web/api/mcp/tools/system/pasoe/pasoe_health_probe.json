@@ -1,0 +1,9 @@
+{
+  "name": "pasoe_health_probe",
+  "description": "Debug probe for OEManager response body type and content.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  }
+}

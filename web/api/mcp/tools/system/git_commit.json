@@ -1,0 +1,26 @@
+{
+  "name": "git_commit",
+  "description": "Perform git operations on a repository on the server. Supports status, add, commit, push, pull, log, diff, branch, checkout and full_checkin (add+commit+push in one go). Defaults to C:\\projects\\mcp\\mcp as the repo path.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "action": {
+        "type": "string",
+        "description": "Git action to perform: status | add | commit | push | pull | log | diff | branch | checkout | full_checkin"
+      },
+      "repo": {
+        "type": "string",
+        "description": "Absolute path to the git repository on the server. Defaults to C:\\projects\\mcp\\mcp."
+      },
+      "message": {
+        "type": "string",
+        "description": "Commit message. Used with commit and full_checkin actions. Defaults to 'Auto commit via MCP'."
+      },
+      "branch": {
+        "type": "string",
+        "description": "Branch name. Used with checkout action."
+      }
+    },
+    "required": ["action"]
+  }
+}

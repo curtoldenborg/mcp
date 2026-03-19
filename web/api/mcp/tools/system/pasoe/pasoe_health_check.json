@@ -1,0 +1,9 @@
+{
+  "name": "pasoe_health_check",
+  "description": "Comprehensive PASOE health check via OEManager REST API. Returns agent status, active sessions and metrics. Defaults to localhost:8810, instance oepas1, credentials tomcat/tomcat.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"instance": {"type": "string", "description": "PASOE instance name. Defaults to oepas1."},"port": {"type": "number", "description": "OEManager port. Defaults to 8810."},"username": {"type": "string", "description": "OEManager username. Defaults to tomcat."},"password": {"type": "string", "description": "OEManager password. Defaults to tomcat."}},
+    "required": []
+  }
+}

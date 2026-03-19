@@ -1,0 +1,9 @@
+{
+  "name": "write_file",
+  "description": "Writes text content to a file on the server filesystem.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"path": {"type": "string", "description": "Absolute file path to write to."},"content": {"type": "string", "description": "File content to write."}},
+    "required": ["path","content"]
+  }
+}

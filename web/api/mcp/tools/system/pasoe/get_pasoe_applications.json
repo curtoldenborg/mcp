@@ -1,0 +1,9 @@
+{
+  "name": "get_pasoe_applications",
+  "description": "Queries the OEManager REST API to list all deployed PASOE applications with their status, agents, sessions and metrics. Defaults to localhost:8810 with tomcat/tomcat credentials.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"port": {"type": "number", "description": "OEManager port. Defaults to 8810."},"username": {"type": "string", "description": "OEManager username. Defaults to tomcat."},"password": {"type": "string", "description": "OEManager password. Defaults to tomcat."}},
+    "required": []
+  }
+}
