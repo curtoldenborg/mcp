@@ -1,7 +1,7 @@
 USING Progress.Lang.*.
 USING Progress.Json.ObjectModel.*.
 BLOCK-LEVEL ON ERROR UNDO, THROW.
-CLASS web.api.mcp.tools.automagic.read_pasoe_error_log INHERITS web.api.mcp.tools.base.tool :
+CLASS web.api.mcp.tools.system.pasoe.read_pasoe_error_log INHERITS web.api.mcp.tools.base.tool :
 
     METHOD PUBLIC OVERRIDE JsonObject Execute(id AS integer, poArguments AS JsonObject):
 

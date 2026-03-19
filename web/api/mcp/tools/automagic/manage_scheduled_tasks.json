@@ -1,9 +1,0 @@
-{
-  "name": "manage_scheduled_tasks",
-  "description": "Manages scheduled tasks in the mcp_scheduled_task table. Supports list, create, cancel and delete. Tasks are picked up by mcp_scheduler_batch.p and forwarded to n8n.",
-  "inputSchema": {
-    "type": "object",
-    "properties": {"action": {"type": "string", "description": "Action: list, create, cancel, delete"},"status": {"type": "string", "description": "Filter for list: PENDING, RUNNING, COMPLETED, FAILED, CANCELLED, ALL"},"task_id": {"type": "number", "description": "Task ID for cancel/delete"},"task_name": {"type": "string", "description": "Human-readable task name"},"task_type": {"type": "string", "description": "execute_tool, send_email, report"},"tool_name": {"type": "string", "description": "MCP tool to execute"},"tool_arguments": {"type": "string", "description": "JSON string of tool arguments"},"chat_input": {"type": "string", "description": "Free-text instruction forwarded to n8n"},"scheduled_time": {"type": "string", "description": "ISO 8601 datetime e.g. 2026-03-16T08:00:00+01:00"},"recurrence": {"type": "string", "description": "ONCE, HOURLY, DAILY, WEEKLY, MONTHLY"},"recurrence_interval": {"type": "number", "description": "Interval multiplier. Default: 1"},"notify_email": {"type": "string", "description": "Email to notify on completion"},"notify_subject": {"type": "string", "description": "Email subject"},"n8n_endpoint": {"type": "string", "description": "Override n8n webhook URL"},"max_retries": {"type": "number", "description": "Max retry attempts. Default: 3"}},
-    "required": ["action"]
-  }
-}
