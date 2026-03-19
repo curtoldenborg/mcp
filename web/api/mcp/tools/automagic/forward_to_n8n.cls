@@ -62,7 +62,6 @@ CLASS web.api.mcp.tools.automagic.forward_to_n8n INHERITS web.api.mcp.tools.base
 
         RETURN CreateMcpResponseJson(id, oResult, false).
 
-
     END.
 
 END CLASS.

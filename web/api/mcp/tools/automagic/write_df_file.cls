@@ -38,7 +38,6 @@ CLASS web.api.mcp.tools.automagic.write_df_file INHERITS web.api.mcp.tools.base.
             RETURN CreateMcpResponseJson(id, oResult, false).
         END CATCH.
 
-
     END.
 
 END CLASS.

@@ -19,10 +19,8 @@ CLASS web.api.mcp.tools.automagic.get_oe_environment INHERITS web.api.mcp.tools.
         oResult:Add("pasoe instance", 'oepas1').
         oResult:Add("pasoe path",     'C:\progress\OE128_64_WRK\oepas1\').
         oResult:Add("pasoe root",     'C:\progress\OE128_64_WRK\oepas1\webapps\ROOT' ).
-        
-
+   
         RETURN CreateMcpResponseJson(id, oResult, false).
-
 
     END.
 

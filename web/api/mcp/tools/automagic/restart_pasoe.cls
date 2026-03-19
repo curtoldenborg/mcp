@@ -44,8 +44,6 @@ CLASS web.api.mcp.tools.automagic.restart_pasoe INHERITS web.api.mcp.tools.base.
         END.
 
         RETURN CreateMcpResponseJson(id, oResult, false).
-
-
     END.
 
 END CLASS.

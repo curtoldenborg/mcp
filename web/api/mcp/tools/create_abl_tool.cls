@@ -18,8 +18,8 @@ CLASS web.api.mcp.tools.create_abl_tool INHERITS web.api.mcp.tools.base.tool :
     
         ASSIGN 
             cToolName  = poArguments:GetCharacter("tool_name")
-            cClassFile = "C:\projects\pasoem8m\m8m\web/api/mcp/tools/automagic/" + cToolName + ".cls"
-            cJsonFile  = "C:\projects\pasoem8m\m8m\web/api/mcp/tools/automagic/" + cToolName + ".json".
+            cClassFile = "C:\projects\mcp\mcp\web/api/mcp/tools/automagic/" + cToolName + ".cls"
+            cJsonFile  = "C:\projects\mcp\mcp\web/api/mcp/tools/automagic/" + cToolName + ".json".
     
         /* 1. Generer .cls-filen fra template + brukerens kode */
         cAblCode = BuildClassFromTemplate(poArguments,OUTPUT cJsonDescription).
