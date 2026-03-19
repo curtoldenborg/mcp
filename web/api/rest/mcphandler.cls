@@ -264,7 +264,10 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
         oResponse:StatusCode  = INTEGER(StatusCodeEnum:OK). // 200 OK
         oResponse:ContentType = "application/json":u.
         oResponse:Entity      = oRoot.
-
+        
+        LOG-MANAGER:WRITE-MESSAGE('mcp_initialize:Complete','LOG').
+        doLogBodyToFile(oRoot,'Response').
+         
         /* 3. Write and Close the response stream */
         oWriter = NEW WebResponseWriter(oResponse).
         oWriter:Open().
