@@ -18,7 +18,7 @@ CLASS web.api.mcp.tools.automagic.deploy_web_file INHERITS web.api.mcp.tools.bas
         IF poArguments:Has("subfolder") THEN
             cSubfolder = poArguments:GetCharacter("subfolder").
 
-        cWebRoot = "C:\projects\mcp\mcp\web\".
+        cWebRoot = system.config:projectpath + "web\root\".
 
         IF cSubfolder <> "" AND cSubfolder <> ? THEN
             cFullPath = cWebRoot + cSubfolder + "\" + cFilename.

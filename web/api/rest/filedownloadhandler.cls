@@ -20,7 +20,7 @@ CLASS web.api.rest.filedownloadhandler INHERITS OpenEdge.Web.WebHandler:
         ASSIGN 
            cFileName = poRequest:URI:GetQueryValue("file").
             /* IMPORTANT: Sanitize this path in production to prevent directory traversal! */
-            cFilePath = "C:\projects\mcp\mcp\resources\documents\" + cFileName.
+            cFilePath = system.config:projectpath + "resources\documents\" + cFileName.
 
         /* 2. Check if file exists */
         FILE-INFO:FILE-NAME = cFilePath.

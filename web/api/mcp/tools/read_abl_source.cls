@@ -16,8 +16,8 @@ CLASS web.api.mcp.tools.read_abl_source INHERITS web.api.mcp.tools.base.tool :
         DEFINE VARIABLE oResult            AS Progress.Json.ObjectModel.JsonObject NO-UNDO.
 
         cToolName          = poArguments:GetCharacter("toolName").
-        cFilePathBase      = SEARCH("C:\projects\mcp\mcp\web/api/mcp/tools/" + cToolName + ".cls").
-        cFilePathAutomagic = SEARCH("C:\projects\mcp\mcp\web/api/mcp/tools/automagic/" + cToolName + ".cls").
+        cFilePathBase      = SEARCH(system.config:projectpath + "web/api/mcp/tools/" + cToolName + ".cls").
+        cFilePathAutomagic = SEARCH(system.config:projectpath + "web/api/mcp/tools/automagic/" + cToolName + ".cls").
 
         IF cFilePathBase = ? AND cFilePathAutomagic = ? THEN
             RETURN CreateMcpResponseText(id, "tool:" + QUOTER(cToolName) + " not found!", false).
