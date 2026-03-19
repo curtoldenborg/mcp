@@ -6,7 +6,7 @@ USING OpenEdge.Web.WebHandler.
 USING OpenEdge.Net.HTTP.StatusCodeEnum.
 USING OpenEdge.Web.WebResponse.
 
-CLASS web.api.rest.filedownload INHERITS OpenEdge.Web.WebHandler:
+CLASS web.api.rest.filedownloadhandler INHERITS OpenEdge.Web.WebHandler:
 
     METHOD OVERRIDE PROTECTED INTEGER HandleGet(INPUT poRequest AS OpenEdge.Web.IWebRequest):
         DEFINE VARIABLE oResponse AS OpenEdge.Net.HTTP.IHttpResponse NO-UNDO.

@@ -10,7 +10,7 @@ USING OpenEdge.Web.*.
 
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
-CLASS web.api.rest.mcp INHERITS OpenEdge.Web.WebHandler: 
+CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler: 
      
     DEFINE PROTECTED VARIABLE RequestBodyLogFileName  AS CHAR INIT 'c:\temp\mcp_req_master_log.txt' NO-UNDO.
     DEFINE PROTECTED VARIABLE ResponseBodyLogFileName AS CHAR INIT 'c:\temp\mcp_res_master_log.txt' NO-UNDO.
