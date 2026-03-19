@@ -65,7 +65,9 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
         DEFINE VARIABLE cRawJson AS LONGCHAR NO-UNDO.
         DEFINE VARIABLE cFIle AS CHAR NO-UNDO. 
               
-        cRawJson = oRequestJson:GetJsonText().
+        //cRawJson = oRequestJson:GetJsonText().
+        oRequestJson:Write(cRawJson, TRUE). 
+        
         cFile   = system.config:projectpath  + 'log\' + uid +  '_' +  direction + '.json'.
         COPY-LOB FROM cRawJson TO FILE cFile NO-CONVERT.       
     END. 
