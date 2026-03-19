@@ -11,10 +11,12 @@ BLOCK-LEVEL ON ERROR UNDO, THROW.
 CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler: 
      
     DEFINE PROTECTED VARIABLE uid AS CHAR NO-UNDO. 
+    DEFINE PRIVATE VARIABLE oTools AS web.api.mcp.tools NO-UNDO.
   
     CONSTRUCTOR PUBLIC mcphandler (  ):
         SUPER ().
         uid = REPLACE(GUID(GENERATE-UUID),'-','').
+        oTools = NEW web.api.mcp.tools(). 
     END CONSTRUCTOR.
     
     

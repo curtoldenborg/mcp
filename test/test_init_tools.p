@@ -6,9 +6,12 @@
   
   def var ob as web.api.mcp.tools. 
   ob = new web.api.mcp.tools(). 
-
+  
+  
   oToolsArray = ob:getRegisteredtools().
   oToolsArray:WriteFile("log/tools_config.json", TRUE). 
+ 
+  message web.api.mcp.tools:GetToolClassName('restart_pasoe') view-as alert-box.
 
    
   //   web.api.mcp.tools:InstantiateAllTools().  

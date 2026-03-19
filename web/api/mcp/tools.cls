@@ -34,7 +34,8 @@ CLASS web.api.mcp.tools:
         bttTool.objectToolName      = ENTRY(NUM-ENTRIES(classname, "."), classname, ".").
         bttTool.objectClassFileName = REPLACE(classname,".","\") + ".cls".
 
-        IF LOG-MANAGER:LOGFILE-NAME NE ? THEN  LOG-MANAGER:WRITE-MESSAGE('Registered Tool:' + bttTool.objectToolName,"LOG").
+        IF LOG-MANAGER:LOGFILE-NAME NE ? AND NEW bttTool THEN
+           LOG-MANAGER:WRITE-MESSAGE('Registered Tool:' + bttTool.objectToolName,"LOG").
     END. 
 
     METHOD PUBLIC STATIC CHAR GetToolClassName(ToolName AS CHAR):
