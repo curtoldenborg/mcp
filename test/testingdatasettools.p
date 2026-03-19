@@ -45,7 +45,7 @@ DEFINE DATASET dsMcpResponse FOR ttRoot, ttResult ,  ttTool, ttInputSchema, ttPr
         RELATION-FIELDS (ToolRowID, SchemaRowID) NESTED FOREIGN-KEY-HIDDEN.
            */
 /* 3. Populate the data */
-
+/*
 CREATE ttRoot.
 CREATE ttResult. 
     ttResult.RootRowID = STRING(ROWID(ttRoot)).
@@ -64,13 +64,13 @@ ASSIGN ttProperty.SchemaRowID = STRING(ROWID(ttInputSchema))
        ttProperty.PropName    = "tableName"
        ttProperty.PropType    = "string"
        ttProperty.Description = "The table name (e.g., Customer)".
-
+*/
 /* 4. Generate the JSON */
-
+/*
 DEFINE VARIABLE oJson AS Progress.Json.ObjectModel.JsonObject NO-UNDO.
 oJson = NEW Progress.Json.ObjectModel.JsonObject().
 oJson:ReadDataset(DATASET dsMcpResponse:HANDLE).
-
+*/
 /* IMPORTANT: ReadDataset includes the 'root' name. 
    To get the exact JSON-RPC format, we pull the object OUT of the 'root' */
-oJson = oJson:GetJsonObject("root"). 
+//oJson = oJson:GetJsonObject("root"). 

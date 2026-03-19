@@ -12,12 +12,11 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
      
     DEFINE PROTECTED VARIABLE uid AS CHAR NO-UNDO. 
   
-
     CONSTRUCTOR PUBLIC mcphandler (  ):
         SUPER ().
         uid = REPLACE(GUID(GENERATE-UUID),'-','').
     END CONSTRUCTOR.
-  
+    
     
     METHOD OVERRIDE PROTECTED INTEGER HandlePost(INPUT poRequest AS OpenEdge.Web.IWebRequest):
         DEFINE VARIABLE eMcpMethodEnum AS web.api.mcp.methodenum NO-UNDO.     
