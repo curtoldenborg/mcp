@@ -105,7 +105,7 @@ CLASS web.api.mcp.tools:
                 /* 4. Optional: Convert slashes to dots for ABL class notation */
                 cFileList[iLoop + 1] = REPLACE(REPLACE(cFileList[iLoop + 1], "/", "."), "\", ".").
       
-                // MESSAGE  STRING(cFileList[iLoop + 1]) VIEW-AS ALERT-BOX.
+                MESSAGE  STRING(cFileList[iLoop + 1]) VIEW-AS ALERT-BOX.
                 oTool = DYNAMIC-NEW cFileList[iLoop + 1]().
                 DELETE OBJECT oTool NO-ERROR. 
             END.
