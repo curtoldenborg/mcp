@@ -20,7 +20,9 @@ FIELD ErrorColumn AS INTEGER   LABEL "Column"
         DEFINE VARIABLE cError     AS CHARACTER NO-UNDO.
         
         cToolName  = poArguments:GetCharacter("toolName").
-        cClassPath = "web/api/mcp/tools/automagic/" + cToolName + ".cls".
+        cClassPath = web.api.mcp.tools:GetToolClassFileName(cToolname).
+        
+        LOG-MANAGER:WRITE-MESSAGE("Compiling..." + cClassPath ,"INFO").  
         
         IF SEARCH(cClassPath) <> ? THEN 
         DO:
