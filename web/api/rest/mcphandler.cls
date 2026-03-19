@@ -65,8 +65,8 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
         DEFINE VARIABLE cRawJson AS LONGCHAR NO-UNDO.
         DEFINE VARIABLE cFIle AS CHAR NO-UNDO. 
               
-        //cRawJson = oRequestJson:GetJsonText().
-        oRequestJson:Write(cRawJson, TRUE). 
+        //cRawJson = oRequestJson:GetJsonText(). // unformatted 
+        oRequestJson:Write(cRawJson, TRUE).      // formatted 
         
         cFile   = system.config:projectpath  + 'log\' + uid +  '_' +  direction + '.json'.
         COPY-LOB FROM cRawJson TO FILE cFile NO-CONVERT.       
@@ -129,7 +129,7 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
         /* 1. Navigate into "params" to get tool metadata */
         oParams   = oRequest:GetJsonObject("params").
         cToolName = oParams:GetCharacter("name"). /* "toolname class" */
-        cClassName = "web.api.mcp.tools." + cToolName.
+        cClassName = web.api.mcp.tools:GetToolClassName(cToolname).
    
         LOG-MANAGER:WRITE-MESSAGE("Exec tool:" + cToolname + " id:" + STRING(iRequestId)).
   
