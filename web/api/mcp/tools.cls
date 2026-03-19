@@ -1,8 +1,4 @@
  
-/*------------------------------------------------------------------------
-   File        : tools
-   Author(s)   : colde
- ----------------------------------------------------------------------*/
 
 USING Progress.Json.ObjectModel.*.
 USING Progress.Lang.*.
@@ -67,22 +63,10 @@ CLASS web.api.mcp.tools:
         bttTool.objectStr = toolDefinition. 
         bttTool.objectName = classname. 
 
-        IF LOG-MANAGER:LOGFILE-NAME NE ? THEN 
-               LOG-MANAGER:WRITE-MESSAGE('Registered Tool:' + bttTool.objectName,"LOG").
-        
-     /*   
-        DEFINE VARIABLE oJsonObject   AS JsonObject  NO-UNDO.
-        DEFINE VARIABLE oParser AS Progress.Json.ObjectModel.ObjectModelParser   NO-UNDO.
-     //   MESSAGE objectName objectStr VIEW-AS ALERT-BOX. 
-        oParser = NEW Progress.Json.ObjectModel.ObjectModelParser().
-        oJsonObject   = CAST(oParser:Parse(bttTool.objectStr), JsonObject).
-     //   message "ok:" objectStr view-as alert-box. 
-     */
-     
+        IF LOG-MANAGER:LOGFILE-NAME NE ? THEN  LOG-MANAGER:WRITE-MESSAGE('Registered Tool:' + bttTool.objectName,"LOG").
     END. 
 
     METHOD PUBLIC JsonArray getRegisteredTools():
-       
         DEF BUFFER bttTool FOR ttTool. 
         DEFINE VARIABLE oParser AS Progress.Json.ObjectModel.ObjectModelParser   NO-UNDO.
         DEFINE VARIABLE oRoot   AS JsonArray  NO-UNDO.
@@ -94,7 +78,7 @@ CLASS web.api.mcp.tools:
             IF LOG-MANAGER:LOGFILE-NAME NE ? THEN 
                LOG-MANAGER:WRITE-MESSAGE('ActiveTool:' + bttTool.objectName,"LOG").
 
-//             message bttTool.objectName bttTool.objectStr view-as alert-box.
+//         message bttTool.objectName bttTool.objectStr view-as alert-box.
             
            oParser = NEW Progress.Json.ObjectModel.ObjectModelParser().
            oJsonObject   = CAST(oParser:Parse(bttTool.objectStr), JsonObject).
@@ -153,7 +137,6 @@ CLASS web.api.mcp.tools:
         END. /* REPEAT */
         INPUT CLOSE.
     END METHOD.
-
 
 
 

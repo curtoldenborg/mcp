@@ -104,10 +104,8 @@ CLASS web.api.rest.mcp INHERITS OpenEdge.Web.WebHandler:
         oWriter:Open().
         oWriter:Close().
     END. 
-
     
     METHOD PROTECTED INTEGER mcp_tools_call(INPUT poRequest AS OpenEdge.Web.IWebRequest):
-  
         DEFINE VARIABLE oRequest      AS JsonObject                      NO-UNDO.
         DEFINE VARIABLE oParams       AS JsonObject                      NO-UNDO.
         DEFINE VARIABLE oArguments    AS JsonObject                      NO-UNDO.
@@ -179,9 +177,7 @@ CLASS web.api.rest.mcp INHERITS OpenEdge.Web.WebHandler:
         
     END. 
 
-  
     METHOD PROTECTED INTEGER mcp_tools_list(INPUT poRequest AS OpenEdge.Web.IWebRequest):
-  
         DEFINE VARIABLE oResponse   AS OpenEdge.Net.HTTP.IHttpResponse NO-UNDO.
         DEFINE VARIABLE oWriter     AS OpenEdge.Web.WebResponseWriter  NO-UNDO.
         DEFINE VARIABLE oTools      AS web.api.mcp.tools               NO-UNDO. 
@@ -230,7 +226,6 @@ CLASS web.api.rest.mcp INHERITS OpenEdge.Web.WebHandler:
 
     
     METHOD PROTECTED INTEGER mcp_initialize(INPUT poRequest AS OpenEdge.Web.IWebRequest):
-
         DEFINE VARIABLE response   AS WebResponse                     NO-UNDO.
         DEFINE VARIABLE oResponse  AS OpenEdge.Net.HTTP.IHttpResponse NO-UNDO.
         DEFINE VARIABLE oWriter    AS OpenEdge.Web.WebResponseWriter  NO-UNDO.
@@ -282,11 +277,9 @@ CLASS web.api.rest.mcp INHERITS OpenEdge.Web.WebHandler:
             DELETE OBJECT oRoot NO-ERROR.     
         END FINALLY.
     END. 
-
-         
+      
     METHOD OVERRIDE PROTECTED INTEGER HandleGet(INPUT poRequest AS OpenEdge.Web.IWebRequest):
         LOG-MANAGER:WRITE-MESSAGE("Method=" + quoter(poRequest:Method),"REQUEST").
-
         DEFINE VARIABLE oResponse AS OpenEdge.Net.HTTP.IHttpResponse NO-UNDO.
         DEFINE VARIABLE oWriter   AS OpenEdge.Web.WebResponseWriter  NO-UNDO.
         DEFINE VARIABLE oRoot     AS JsonObject                      NO-UNDO.

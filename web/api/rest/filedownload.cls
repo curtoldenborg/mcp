@@ -9,7 +9,6 @@ USING OpenEdge.Web.WebResponse.
 CLASS web.api.rest.filedownload INHERITS OpenEdge.Web.WebHandler:
 
     METHOD OVERRIDE PROTECTED INTEGER HandleGet(INPUT poRequest AS OpenEdge.Web.IWebRequest):
-        
         DEFINE VARIABLE oResponse AS OpenEdge.Net.HTTP.IHttpResponse NO-UNDO.
         DEFINE VARIABLE oWriter   AS OpenEdge.Web.WebResponseWriter NO-UNDO.
         DEFINE VARIABLE mFile     AS MEMPTR                         NO-UNDO.
@@ -68,16 +67,13 @@ CLASS web.api.rest.filedownload INHERITS OpenEdge.Web.WebHandler:
         IF GET-SIZE(mFile) > 0 THEN SET-SIZE(mFile) = 0.
 
         RETURN 0.
-        
     END METHOD.
-    
     
     METHOD OVERRIDE PROTECTED INTEGER HandlePost(INPUT poRequest AS OpenEdge.Web.IWebRequest):
         LOG-MANAGER:WRITE-MESSAGE("Method=" + quoter(poRequest:Method),"REQUEST").
         UNDO, THROW NEW Progress.Lang.AppError("METHOD NOT IMPLEMENTED").
     END. 
     
-    /* PUT - save */
     METHOD OVERRIDE PROTECTED INTEGER HandlePut(INPUT poRequest AS OpenEdge.Web.IWebRequest):
         LOG-MANAGER:WRITE-MESSAGE("Method=" + quoter(poRequest:Method),"REQUEST").
         UNDO, THROW NEW Progress.Lang.AppError("METHOD NOT IMPLEMENTED").
