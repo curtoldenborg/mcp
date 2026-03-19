@@ -10,13 +10,19 @@ BLOCK-LEVEL ON ERROR UNDO, THROW.
 
 CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler: 
      
-    DEFINE PROTECTED VARIABLE RequestBodyLogFileName  AS CHAR INIT 'C:\projects\mcp\mcp\log\mcp_req_master_log.txt' NO-UNDO.
-    DEFINE PROTECTED VARIABLE ResponseBodyLogFileName AS CHAR INIT 'C:\projects\mcp\mcp\log\mcp_res_master_log.txt' NO-UNDO.
+    DEFINE PROTECTED VARIABLE uid AS CHAR NO-UNDO. 
+  
+
+    CONSTRUCTOR PUBLIC mcphandler (  ):
+        SUPER ().
+        uid = REPLACE(GUID(GENERATE-UUID),'-','').
+    END CONSTRUCTOR.
+  
     
     METHOD OVERRIDE PROTECTED INTEGER HandlePost(INPUT poRequest AS OpenEdge.Web.IWebRequest):
         DEFINE VARIABLE eMcpMethodEnum AS web.api.mcp.methodenum NO-UNDO.     
 
-        doLogBodyToFile(CAST(poRequest:Entity, JsonObject),RequestBodyLogFileName).
+        doLogBodyToFile(CAST(poRequest:Entity, JsonObject),'Request').
         eMcpMethodEnum = getMcpMethod(poRequest).  
      
         CASE eMcpMethodEnum:
@@ -55,26 +61,13 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
         RETURN eMethod.            
     END. 
   
-    METHOD PROTECTED VOID doLogBodyToFile(INPUT oRequestJson AS jsonobject,filename AS CHARACTER):
+    METHOD PROTECTED VOID doLogBodyToFile(INPUT oRequestJson AS jsonobject,direction AS CHARACTER):
         DEFINE VARIABLE cRawJson AS LONGCHAR NO-UNDO.
-        DEFINE VARIABLE uid AS CHAR NO-UNDO. 
         DEFINE VARIABLE cFIle AS CHAR NO-UNDO. 
               
         cRawJson = oRequestJson:GetJsonText().
-       
-        uid = REPLACE(GUID(GENERATE-UUID),'-','').
-        cFile   = system.config:projectpath  + 'log\Request_' + uid + '.json'.
-
+        cFile   = system.config:projectpath  + 'log\' + uid +  '_' +  direction + '.json'.
         COPY-LOB FROM cRawJson TO FILE cFile NO-CONVERT.       
-       
-       /*
-       // cRawJson = CAST(poRequest:Entity, JsonObject):GetJsonText().
-        cRawJson = oRequestJson:GetJsonText().
-        if LENGTH(cRawJson) GE 3000 THEN cRawJson = " --- too long --- ".
-        OUTPUT TO VALUE(filename) APPEND.
-           PUT UNFORMATTED  STRING(NOW) + " | " + STRING(cRawJson) SKIP.
-        OUTPUT CLOSE.
-       */
     END. 
   
   
@@ -153,7 +146,7 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
         
         oResponse:Entity = oJsonResponse.
         
-        doLogBodyToFile(oJsonResponse,ResponseBodyLogFileName).
+        doLogBodyToFile(oJsonResponse,'Response').
         
         oWriter = NEW WebResponseWriter(oResponse).
         oWriter:Open().
@@ -209,16 +202,10 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
         oToolsArray = oTools:getRegisteredtools(). 
         oResult:Add("tools",oToolsArray).
         oRoot:Add("result", oResult).
- 
-        /* debug - stuff         
-        def var lcJson as longchar no-undo. 
-        oRoot:Write(lcJson, TRUE, "UTF-8").
-        COPY-LOB FROM lcJson TO FILE "c:/temp/response.json".
-        */
          
         oResponse:Entity = oRoot.
         LOG-MANAGER:WRITE-MESSAGE('mcp_tools_list:Complete','LOG').
-        doLogBodyToFile(oRoot,ResponseBodyLogFileName).
+        doLogBodyToFile(oRoot,'Response').
     
         oWriter = NEW WebResponseWriter(oResponse).
         oWriter:Open().
