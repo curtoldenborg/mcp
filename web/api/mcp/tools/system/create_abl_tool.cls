@@ -19,8 +19,6 @@ CLASS web.api.mcp.tools.system.create_abl_tool INHERITS web.api.mcp.tools.base.t
         ASSIGN 
             cToolName  = poArguments:GetCharacter("tool_name").
             
-            
-            
             cClassFile = system.config:projectpath + "web/api/mcp/tools/automagic/" + cToolName + ".cls".
             cJsonFile  = system.config:projectpath + "web/api/mcp/tools/automagic/" + cToolName + ".json".
     

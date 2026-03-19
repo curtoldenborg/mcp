@@ -20,10 +20,11 @@ FIELD ErrorColumn AS INTEGER   LABEL "Column"
         DEFINE VARIABLE cError     AS CHARACTER NO-UNDO.
         
         cToolName  = poArguments:GetCharacter("toolName").
+      
+        LOG-MANAGER:WRITE-MESSAGE("Compiling..." + cToolName ,"INFO").  
+      
         cClassPath = web.api.mcp.tools:GetToolClassFileName(cToolname).
-        
-        LOG-MANAGER:WRITE-MESSAGE("Compiling..." + cClassPath ,"INFO").  
-        
+             
         IF SEARCH(cClassPath) <> ? THEN 
         DO:
             FILE-INFO:FILE-NAME = cClassPath.

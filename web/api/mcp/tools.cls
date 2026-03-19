@@ -50,8 +50,15 @@ CLASS web.api.mcp.tools:
 
     METHOD PUBLIC STATIC CHAR GetToolClassFileName(ToolName AS CHAR):
          DEF BUFFER bttTool FOR ttTool.
+         DEF VAR cToolPath AS CHAR NO-UNDO. 
+               
          FIND FIRST bttTool WHERE bttTool.objectToolName = ToolName NO-ERROR.
          IF AVAIL bttTool THEN RETURN bttTool.objectClassFileName .
+         
+         cToolPath = "\web\api\mcp\tools\automagic\" + Toolname. 
+         // assume it's in development in automagic folder if it's not registered 
+         IF SEARCH(cToolPath) NE ? THEN RETURN cToolPath. 
+         
          RETURN ?.
     END. 
 
