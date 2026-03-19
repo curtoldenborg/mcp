@@ -11,9 +11,11 @@ BLOCK-LEVEL ON ERROR UNDO, THROW.
 CLASS web.api.mcp.tools: 
 
     DEFINE STATIC TEMP-TABLE ttTool NO-UNDO SERIALIZE-NAME "tools"
-        FIELD objectClassName  AS CHARACTER  
-        FIELD objectToolName   AS CHARACTER
-        FIELD objectStr        AS CHARACTER . 
+        FIELD objectClassName     AS CHARACTER  
+        FIELD objectToolName      AS CHARACTER
+        FIELD objectStr           AS CHARACTER 
+        FIELD objectClassFileName AS CHARACTER 
+        . 
 
 
     CONSTRUCTOR PUBLIC tools ( ):
@@ -27,9 +29,10 @@ CLASS web.api.mcp.tools:
         FIND FIRST bttTool WHERE bttTool.objectClassName = ClassName NO-ERROR.
         IF NOT AVAILABLE bttTool THEN CREATE bttTool . 
         
-        bttTool.objectStr       = toolDefinition. 
-        bttTool.objectClassName = classname. 
-        bttTool.objectToolName  = ENTRY(NUM-ENTRIES(classname, "."), classname, ".").
+        bttTool.objectStr           = toolDefinition. 
+        bttTool.objectClassName     = classname. 
+        bttTool.objectToolName      = ENTRY(NUM-ENTRIES(classname, "."), classname, ".").
+        bttTool.objectClassFileName = REPLACE(classname,".","\") + ".cls".
 
         IF LOG-MANAGER:LOGFILE-NAME NE ? THEN  LOG-MANAGER:WRITE-MESSAGE('Registered Tool:' + bttTool.objectToolName,"LOG").
     END. 
@@ -40,6 +43,14 @@ CLASS web.api.mcp.tools:
          IF AVAIL bttTool THEN RETURN bttTool.objectClassName .
          RETURN "-- Something wrong here --".
     END. 
+
+    METHOD PUBLIC STATIC CHAR GetToolClassFileName(ToolName AS CHAR):
+         DEF BUFFER bttTool FOR ttTool.
+         FIND FIRST bttTool WHERE bttTool.objectToolName = ToolName NO-ERROR.
+         IF AVAIL bttTool THEN RETURN bttTool.objectClassFileName .
+         RETURN ?.
+    END. 
+
 
     METHOD PUBLIC JsonArray getRegisteredTools():
         DEF BUFFER bttTool FOR ttTool. 
@@ -105,7 +116,8 @@ CLASS web.api.mcp.tools:
                 /* 4. Optional: Convert slashes to dots for ABL class notation */
                 cFileList[iLoop + 1] = REPLACE(REPLACE(cFileList[iLoop + 1], "/", "."), "\", ".").
       
-                MESSAGE  STRING(cFileList[iLoop + 1]) VIEW-AS ALERT-BOX.
+       //         MESSAGE  STRING(cFileList[iLoop + 1]) VIEW-AS ALERT-BOX.
+              
                 oTool = DYNAMIC-NEW cFileList[iLoop + 1]().
                 DELETE OBJECT oTool NO-ERROR. 
             END.
