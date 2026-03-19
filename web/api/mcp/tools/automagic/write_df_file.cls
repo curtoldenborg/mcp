@@ -16,7 +16,7 @@ CLASS web.api.mcp.tools.automagic.write_df_file INHERITS web.api.mcp.tools.base.
         cFileName = poArguments:GetCharacter("file_name").
         cContent  = poArguments:GetCharacter("content").
 
-        cBasePath = "C:" + CHR(92) + "projects" + CHR(92) + "pasoem8m" + CHR(92) + "m8m" + CHR(92)
+        cBasePath = "C:" + CHR(92) + "projects" + CHR(92) + "mcp" + CHR(92) + "mcp" + CHR(92)
                   + "web" + CHR(92) + "api" + CHR(92) + "mcp" + CHR(92) + "tools" + CHR(92)
                   + "automagic" + CHR(92) + "df_files" + CHR(92).
 
