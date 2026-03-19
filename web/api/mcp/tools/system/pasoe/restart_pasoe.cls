@@ -18,7 +18,7 @@ CLASS web.api.mcp.tools.system.pasoe.restart_pasoe INHERITS web.api.mcp.tools.ba
         oResult = NEW Progress.Json.ObjectModel.JsonObject().
         oResult:Add("instance", cInstance).
 
-        cCmd = "C:\progress\OE128_64_WRK\"+ cInstance + "\bin\tcman.bat stop " + cInstance.
+        cCmd = "C:\progress\OE128_64_WRK\" + cInstance + "\bin\tcman.bat stop " + cInstance.
         OS-COMMAND SILENT VALUE(cCmd).
 
         IF OS-ERROR = 0 THEN
