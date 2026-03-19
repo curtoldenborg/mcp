@@ -9,6 +9,9 @@ BLOCK-LEVEL ON ERROR UNDO, THROW.
 
 
 CLASS web.api.mcp.tools: 
+    
+    DEFINE PUBLIC STATIC PROPERTY ToolsAreInstantiated AS LOGICAL GET. PRIVATE SET.
+    DEFINE PUBLIC STATIC PROPERTY ToolsActiveReload    AS LOGICAL INIT TRUE GET. PRIVATE SET.
 
     DEFINE STATIC TEMP-TABLE ttTool NO-UNDO SERIALIZE-NAME "tools"
         FIELD objectClassName     AS CHARACTER  
@@ -17,10 +20,10 @@ CLASS web.api.mcp.tools:
         FIELD objectClassFileName AS CHARACTER 
         . 
 
-
     CONSTRUCTOR PUBLIC tools ( ):
           EMPTY TEMP-TABLE ttTool. 
           InstantiateAllTools().
+          
     END CONSTRUCTOR.
   
     METHOD PUBLIC STATIC VOID RegisterTool(ClassName AS CHAR, ToolDefinition AS LONGCHAR):
@@ -83,6 +86,7 @@ CLASS web.api.mcp.tools:
          web.api.mcp.tools:InstantiateToolsInDirectory('web\api\mcp\tools\system\pasoe') .
          web.api.mcp.tools:InstantiateToolsInDirectory('web\api\mcp\tools\automagic').
          web.api.mcp.tools:InstantiateToolsInDirectory('web\api\mcp\tools').
+         ToolsAreInstantiated = TRUE.
     END. 
     
     

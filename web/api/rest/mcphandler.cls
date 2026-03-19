@@ -16,7 +16,13 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
     CONSTRUCTOR PUBLIC mcphandler (  ):
         SUPER ().
         uid = REPLACE(GUID(GENERATE-UUID),'-','').
-        oTools = NEW web.api.mcp.tools(). 
+        
+        IF NOT web.api.mcp.tools:ToolsAreInstantiated OR 
+               web.api.mcp.tools:ToolsActiveReload THEN 
+            
+            oTools = NEW web.api.mcp.tools(). 
+            
+    
     END CONSTRUCTOR.
     
     
