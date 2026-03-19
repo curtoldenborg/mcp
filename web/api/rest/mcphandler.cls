@@ -1,5 +1,3 @@
- 
-
 
 USING Progress.Json.ObjectModel.*.
 USING Progress.Lang.*.
@@ -12,8 +10,8 @@ BLOCK-LEVEL ON ERROR UNDO, THROW.
 
 CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler: 
      
-    DEFINE PROTECTED VARIABLE RequestBodyLogFileName  AS CHAR INIT 'c:\temp\mcp_req_master_log.txt' NO-UNDO.
-    DEFINE PROTECTED VARIABLE ResponseBodyLogFileName AS CHAR INIT 'c:\temp\mcp_res_master_log.txt' NO-UNDO.
+    DEFINE PROTECTED VARIABLE RequestBodyLogFileName  AS CHAR INIT 'C:\projects\mcp\mcp\log\mcp_req_master_log.txt' NO-UNDO.
+    DEFINE PROTECTED VARIABLE ResponseBodyLogFileName AS CHAR INIT 'C:\projects\mcp\mcp\log\mcp_res_master_log.txt' NO-UNDO.
     
     METHOD OVERRIDE PROTECTED INTEGER HandlePost(INPUT poRequest AS OpenEdge.Web.IWebRequest):
         DEFINE VARIABLE eMcpMethodEnum AS web.api.mcp.methodenum NO-UNDO.     
