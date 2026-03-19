@@ -19,6 +19,12 @@ CLASS web.api.mcp.tools.system.read_abl_source INHERITS web.api.mcp.tools.base.t
         IF cClsPath = ? THEN
             RETURN CreateMcpResponseText(id, "tool:" + QUOTER(cToolName) + " not found!", false).
 
+        IF SEARCH(cClsPath) <> ? THEN 
+        DO:
+            FILE-INFO:FILE-NAME = cClsPath.
+            cClsPath = FILE-INFO:FULL-PATHNAME.
+        END. 
+        
         /* Read .cls source */
         cClsContent = "".
         INPUT FROM VALUE(cClsPath).

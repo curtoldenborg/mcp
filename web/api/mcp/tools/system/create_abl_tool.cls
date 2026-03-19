@@ -17,15 +17,18 @@ CLASS web.api.mcp.tools.system.create_abl_tool INHERITS web.api.mcp.tools.base.t
         DEFINE VARIABLE cJsonDescription AS LONGCHAR NO-UNDO. 
     
         ASSIGN 
-            cToolName  = poArguments:GetCharacter("tool_name")
-            cClassFile = system.config:projectpath + "web/api/mcp/tools/automagic/" + cToolName + ".cls"
+            cToolName  = poArguments:GetCharacter("tool_name").
+            
+            
+            
+            cClassFile = system.config:projectpath + "web/api/mcp/tools/automagic/" + cToolName + ".cls".
             cJsonFile  = system.config:projectpath + "web/api/mcp/tools/automagic/" + cToolName + ".json".
     
         /* 1. Generer .cls-filen fra template + brukerens kode */
         cAblCode = BuildClassFromTemplate(poArguments,OUTPUT cJsonDescription).
     
         /* 2. Skriv til disk */
-        COPY-LOB FROM cAblCode TO FILE cClassFile.
+        COPY-LOB FROM cAblCode         TO FILE cClassFile.
         COPY-LOB FROM cJsonDescription TO FILE cJsonFile.
     
         /* 3. Kompiler */
@@ -37,21 +40,24 @@ CLASS web.api.mcp.tools.system.create_abl_tool INHERITS web.api.mcp.tools.base.t
         RETURN CreateMcpResponseText(id, "Tool created: " + cToolName, false).
      
         CATCH e AS Progress.Lang.Error:
-            LOG-MANAGER:WRITE-MESSAGE("Create abl. tool error","ERR").
+            LOG-MANAGER:WRITE-MESSAGE("Create ABL. Tool error","ERR").
+            
             
             DEFINE VARIABLE iLoop AS INTEGER NO-UNDO.
-    
-            /* Loop through all messages in the error stack */
+            DEFINE VARIABLE cFullErr AS CHARACTER NO-UNDO.
+        
+           /* 1. Build a detailed error string: "Error 75: Record not found | Error 123: ..." */
             DO iLoop = 1 TO e:NumMessages:
-                LOG-MANAGER:WRITE-MESSAGE(
-                    SUBSTITUTE("Error &1: &2", 
-                    e:GetMessageNum(iLoop), 
-                    e:GetMessage(iLoop)), 
-                    "ERR"
-                    ).
+                cFullErr = cFullErr 
+                         + (IF cFullErr > "" THEN " | " ELSE "") 
+                         + "Error " + STRING(e:GetMessageNum(iLoop)) + ": " 
+                         + e:GetMessage(iLoop).
             END.
+        
+            /* 2. Log it specifically for server-side debugging */
+            LOG-MANAGER:WRITE-MESSAGE(SUBSTITUTE("Create ABL. Tool Error [&1]: &2", cToolName, cFullErr), "ERR").
             
-            RETURN CreateMcpResponseText(id,'error..',true).
+            RETURN CreateMcpResponseText(id,cFullErr,true).
         END CATCH. 
     END. 
     

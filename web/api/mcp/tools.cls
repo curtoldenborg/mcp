@@ -124,8 +124,14 @@ CLASS web.api.mcp.tools:
                 cFileList[iLoop + 1] = REPLACE(REPLACE(cFileList[iLoop + 1], "/", "."), "\", ".").
       
        //         MESSAGE  STRING(cFileList[iLoop + 1]) VIEW-AS ALERT-BOX.
-              
-                oTool = DYNAMIC-NEW cFileList[iLoop + 1]().
+                
+                // if some tools does not compile - skip it and log 
+                // could be in development ... 
+                oTool = DYNAMIC-NEW cFileList[iLoop + 1]() NO-ERROR.
+                IF ERROR-STATUS:ERROR AND LOG-MANAGER:LOGFILE-NAME NE ? THEN
+                       LOG-MANAGER:WRITE-MESSAGE('Tool does not compile:' + cFileList[iLoop + 1],"ERROR").
+                     
+                
                 DELETE OBJECT oTool NO-ERROR. 
             END.
         END.
