@@ -4,7 +4,7 @@ USING Progress.Lang.*.
 
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
-CLASS web.api.mcp.tools.create_abl_tool INHERITS web.api.mcp.tools.base.tool :  
+CLASS web.api.mcp.tools.system.create_abl_tool INHERITS web.api.mcp.tools.base.tool :  
 
 
     

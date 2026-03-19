@@ -6,7 +6,7 @@ USING Progress.Json.ObjectModel.*.
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
 
-CLASS web.api.mcp.tools.get_current_time INHERITS web.api.mcp.tools.base.tool :  
+CLASS web.api.mcp.tools.system.get_current_time INHERITS web.api.mcp.tools.base.tool :  
 
 
    METHOD PUBLIC OVERRIDE LONGCHAR ToolDefinition():

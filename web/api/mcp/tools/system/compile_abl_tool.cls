@@ -1,7 +1,7 @@
 USING Progress.Lang.*.
 USING Progress.Json.ObjectModel.*.
 BLOCK-LEVEL ON ERROR UNDO, THROW.
-CLASS web.api.mcp.tools.compile_abl_tool INHERITS web.api.mcp.tools.base.tool :
+CLASS web.api.mcp.tools.system.compile_abl_tool INHERITS web.api.mcp.tools.base.tool :
 
 DEFINE TEMP-TABLE ttResult NO-UNDO
 FIELD ToolName     AS CHARACTER LABEL "Tool"
@@ -11,16 +11,7 @@ FIELD ErrorMessage AS CHARACTER LABEL "Error"
 FIELD ErrorRow    AS INTEGER   LABEL "Row"
 FIELD ErrorColumn AS INTEGER   LABEL "Column"
 .
-/*
-    METHOD PUBLIC OVERRIDE LONGCHAR ToolDefinition():
-        RETURN '
-      ~{
-          "name": "compile_abl_tool",
-          "description": "Compiles an ABL class file by tool name and returns any compiler errors or warnings. Use this to validate ABL code before or after creating a tool with create_abl_tool.",
-          "inputSchema": ~{ "type": "object", "properties": ~{"toolName": ~{"type": "string", "description": "Name of the tool to compile, e.g. ~'get_customer_data~'"},~}, "required": ["toolName"] ~}
-        ~}        '.
-    END.
-*/
+
     METHOD PUBLIC OVERRIDE JsonObject Execute(id AS integer, poArguments AS JsonObject):
 
         DEFINE VARIABLE oData AS JsonArray NO-UNDO.

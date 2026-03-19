@@ -6,23 +6,7 @@ BLOCK-LEVEL ON ERROR UNDO, THROW.
 
 CLASS web.api.mcp.tools.read_progress_db INHERITS web.api.mcp.tools.base.tool :  
    
-   /*
-   METHOD PUBLIC OVERRIDE LONGCHAR ToolDefinition():
-        RETURN  '
-           ~{
-        "name": "read_progress_db",
-        "description": "Queries the OpenEdge database using a standard ABL WHERE clause.",
-        "inputSchema": ~{
-          "type": "object",
-          "properties": ~{
-            "tableName": ~{ "type": "string", "description": "The table name (e.g., Customer)" ~},
-            "whereClause": ~{ "type": "string", "description": "The ABL filter (e.g., CustNum < 50)" ~}
-          ~},
-          "required": ["tableName", "whereClause"]
-        ~}
-      ~}'.
-    END.
-    */
+ 
     METHOD PUBLIC OVERRIDE Progress.Json.ObjectModel.JsonObject Execute(id AS integer,  poArguments AS Progress.Json.ObjectModel.JsonObject ):
        
         DEFINE VARIABLE cTableName   AS CHAR NO-UNDO. 

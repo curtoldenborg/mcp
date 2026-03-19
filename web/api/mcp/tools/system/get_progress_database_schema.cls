@@ -4,7 +4,7 @@ USING Progress.Lang.*.
 
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
-CLASS web.api.mcp.tools.get_progress_database_schema INHERITS web.api.mcp.tools.base.tool :  
+CLASS web.api.mcp.tools.system.get_progress_database_schema INHERITS web.api.mcp.tools.base.tool :  
 
    METHOD PUBLIC OVERRIDE LONGCHAR ToolDefinition():
         RETURN  '
