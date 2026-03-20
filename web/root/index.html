@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PASOE Monitor Portal</title>
+<style>
+:root {
+  --bg:      #0d1117;
+  --surface: #161b22;
+  --surface2:#1c2128;
+  --surface3:#21262d;
+  --border:  #30363d;
+  --green:   #3fb950;
+  --red:     #f85149;
+  --yellow:  #d29922;
+  --blue:    #58a6ff;
+  --purple:  #bc8cff;
+  --orange:  #f0883e;
+  --cyan:    #39d353;
+  --text:    #e6edf3;
+  --muted:   #8b949e;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 56px;
+  flex-shrink: 0;
+}
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+.logo-box {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #3fb950 0%, #58a6ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 900;
+  color: #000;
+  flex-shrink: 0;
+}
+.header-version { font-size: 11px; color: var(--muted); margin-left: 2px; }
+.spacer { flex: 1; }
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  font-family: 'Consolas', monospace;
+}
+.live-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 7px var(--green);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.75)} }
+.clock-val { color: var(--cyan); font-weight: 700; }
+
+/* HERO */
+.hero {
+  padding: 36px 32px 0;
+}
+.hero-title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+.hero-accent {
+  background: linear-gradient(90deg, #3fb950, #58a6ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub { font-size: 14px; color: var(--muted); }
+
+/* STATS BAR */
+.stats-bar {
+  display: flex;
+  gap: 10px;
+  margin: 20px 32px 0;
+  flex-wrap: wrap;
+}
+.stat-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.stat-chip b { color: var(--text); font-weight: 700; }
+
+/* SECTION HEADER */
+.section { padding: 28px 32px 0; }
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* CARD GRID */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+/* APP CARD */
+.app-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 18px 16px;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.app-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent, var(--border));
+  border-radius: 12px 12px 0 0;
+  transition: height 0.2s;
+}
+.app-card:hover {
+  border-color: var(--accent, var(--border));
+  background: var(--surface2);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.app-card:hover::before { height: 4px; }
+
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; }
+.card-icon {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  background: var(--icon-bg, var(--surface3));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.card-pill {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid;
+}
+.pill-live   { color: var(--green);  border-color: rgba(63,185,80,0.4);  background: rgba(63,185,80,0.1);  }
+.pill-stats  { color: var(--blue);   border-color: rgba(88,166,255,0.4); background: rgba(88,166,255,0.1); }
+.pill-sys    { color: var(--purple); border-color: rgba(188,140,255,0.4);background: rgba(188,140,255,0.1);}
+
+.card-name { font-size: 15px; font-weight: 700; }
+.card-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+.card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag {
+  font-size: 10px;
+  color: var(--muted);
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+
+.card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: auto;
+  font-family: 'Consolas', monospace;
+}
+.open-lnk { font-weight: 700; color: var(--accent, var(--muted)); font-family: 'Segoe UI', sans-serif; }
+
+/* CARD THEMES */
+.t-green  { --accent: #3fb950; --icon-bg: rgba(63,185,80,0.12);  }
+.t-blue   { --accent: #58a6ff; --icon-bg: rgba(88,166,255,0.12); }
+.t-orange { --accent: #f0883e; --icon-bg: rgba(240,136,62,0.12); }
+.t-purple { --accent: #bc8cff; --icon-bg: rgba(188,140,255,0.12);}
+
+/* QUICK LINKS */
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.ql {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.ql:hover { background: var(--surface2); border-color: var(--blue); color: var(--text); }
+.qdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+/* FOOTER */
+.footer {
+  margin-top: auto;
+  padding: 18px 32px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-logo">
+    <div class="logo-box">P</div>
+    PASOE Monitor Portal
+    <span class="header-version">OE 12.8.2</span>
+  </div>
+  <div class="spacer"></div>
+  <div class="header-status">
+    <div class="live-dot"></div>
+    NUCHOME &nbsp;|&nbsp;
+    <span class="clock-val" id="clockVal">--:--:--</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-title">OpenEdge <span class="hero-accent">Monitoring Suite</span></div>
+  <div class="hero-sub">Real-time visibility into your PASOE instance -- traffic, logs, statistics and internal state</div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-chip">
+    <div class="sdot" style="background:var(--green)"></div>
+    HTTP Requests today: <b id="sReqs">...</b>
+  </div>
+  <div class="stat-chip">
+    <div class="sdot" style="background:var(--blue)"></div>
+    Agent log lines: <b id="sAgent">...</b>
+  </div>
+  <div class="stat-chip">
+    <div class="sdot" style="background:var(--red)"></div>
+    Errors: <b id="sErrors">...</b>
+  </div>
+  <div class="stat-chip">
+    <div class="sdot" style="background:var(--purple)"></div>
+    OEManager: <b id="sOem">...</b>
+  </div>
+</div>
+
+<!-- MAIN TOOLS -->
+<div class="section">
+  <div class="section-label">Monitoring Tools</div>
+  <div class="card-grid">
+
+    <a class="app-card t-green" href="/claude/traffic_monitor.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">[T]</div>
+        <span class="card-pill pill-live">LIVE 1s</span>
+      </div>
+      <div class="card-name">Traffic Monitor</div>
+      <div class="card-desc">Real-time HTTP access log console. Every request as it hits PASOE -- status codes, response bytes, client IPs and NEW badges on fresh entries.</div>
+      <div class="card-tags">
+        <span class="tag">access log</span>
+        <span class="tag">status codes</span>
+        <span class="tag">filter</span>
+        <span class="tag">auto-scroll</span>
+        <span class="tag">pause</span>
+      </div>
+      <div class="card-foot">
+        <span>get_pasoe_log_tail</span>
+        <span class="open-lnk">Open &rsaquo;</span>
+      </div>
+    </a>
+
+    <a class="app-card t-blue" href="/claude/agent_monitor.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">[A]</div>
+        <span class="card-pill pill-live">LIVE 1s</span>
+      </div>
+      <div class="card-name">Agent Log Monitor</div>
+      <div class="card-desc">Live tail of the PASOE agent log. Toggle REQ / APPL / LOG / ERROR levels, see agent IDs, session IDs, PIDs and error highlights in real time.</div>
+      <div class="card-tags">
+        <span class="tag">agent log</span>
+        <span class="tag">level filter</span>
+        <span class="tag">error highlight</span>
+        <span class="tag">session id</span>
+      </div>
+      <div class="card-foot">
+        <span>agent_log_tail</span>
+        <span class="open-lnk">Open &rsaquo;</span>
+      </div>
+    </a>
+
+    <a class="app-card t-orange" href="/claude/dashboard.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">[D]</div>
+        <span class="card-pill pill-stats">5s REFRESH</span>
+      </div>
+      <div class="card-name">Log Dashboard</div>
+      <div class="card-desc">Aggregated metrics from today's logs. KPI cards, hourly bar chart, per-minute sparkline, status code donut and a system health ring.</div>
+      <div class="card-tags">
+        <span class="tag">KPIs</span>
+        <span class="tag">hourly chart</span>
+        <span class="tag">sparkline</span>
+        <span class="tag">health ring</span>
+      </div>
+      <div class="card-foot">
+        <span>pasoe_dashboard_stats</span>
+        <span class="open-lnk">Open &rsaquo;</span>
+      </div>
+    </a>
+
+    <a class="app-card t-purple" href="/claude/oemanager_dashboard.html" target="_blank">
+      <div class="card-top">
+        <div class="card-icon">[O]</div>
+        <span class="card-pill pill-sys">5s REFRESH</span>
+      </div>
+      <div class="card-name">OEManager Dashboard</div>
+      <div class="card-desc">Deep PASOE internals via OEManager REST API. Live sessions table, agent state, broker metrics, transport status, properties and I/O sparkline.</div>
+      <div class="card-tags">
+        <span class="tag">agents</span>
+        <span class="tag">sessions</span>
+        <span class="tag">broker metrics</span>
+        <span class="tag">transports</span>
+      </div>
+      <div class="card-foot">
+        <span>oemanager_dashboard</span>
+        <span class="open-lnk">Open &rsaquo;</span>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<!-- QUICK LINKS -->
+<div class="section" style="padding-bottom: 28px;">
+  <div class="section-label">Quick Access</div>
+  <div class="quick-grid">
+    <a class="ql" href="/web/root/traffic_monitor.html" target="_blank">
+      <div class="qdot" style="background:var(--green)"></div>
+      HTTP Traffic Console
+    </a>
+    <a class="ql" href="/web/root/agent_monitor.html" target="_blank">
+      <div class="qdot" style="background:var(--blue)"></div>
+      Agent Log Console
+    </a>
+    <a class="ql" href="/web/root/dashboard.html" target="_blank">
+      <div class="qdot" style="background:var(--orange)"></div>
+      Log Statistics Dashboard
+    </a>
+    <a class="ql" href="/web/root/oemanager_dashboard.html" target="_blank">
+      <div class="qdot" style="background:var(--purple)"></div>
+      OEManager Internals
+    </a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>PASOE Monitor Portal -- Progress OpenEdge 12.8.2 -- NUCHOME.localdomain</span>
+  <span id="footerTs">--</span>
+</div>
+
+<script>
+var API_URL = '/web/mcp';
+var rpcId   = 1;
+
+function buildRpc(tool, args) {
+  return JSON.stringify({
+    jsonrpc: '2.0', id: rpcId++,
+    method: 'tools/call',
+    params: { name: tool, arguments: args || {} }
+  });
+}
+
+function extractPayload(data) {
+  if (data.error) return null;
+  var r = data.result;
+  if (!r) return null;
+  if (r.content && r.content.length > 0) {
+    var t = r.content[0].text;
+    if (typeof t === 'string') { try { return JSON.parse(t); } catch(e) { return null; } }
+    if (typeof t === 'object') return t;
+  }
+  return r.lines ? r : (r.result || r);
+}
+
+function $id(id) { return document.getElementById(id); }
+
+/* Clock */
+function tick() {
+  var now = new Date();
+  var ts  = now.toTimeString().substring(0, 8);
+  $id('clockVal').textContent  = ts;
+  $id('footerTs').textContent  = now.toLocaleDateString('en-GB') + '  ' + ts;
+}
+tick();
+setInterval(tick, 1000);
+
+/* Stats from pasoe_dashboard_stats */
+function loadLogStats() {
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: buildRpc('pasoe_dashboard_stats', {})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var p = extractPayload(data);
+    if (!p) { $id('sReqs').textContent = 'N/A'; return; }
+    $id('sReqs').textContent   = (p.total_requests || 0).toLocaleString();
+    $id('sAgent').textContent  = (p.agent_total    || 0).toLocaleString();
+    var errs = (p.status_5xx || 0) + (p.agent_errors || 0);
+    var errEl = $id('sErrors');
+    errEl.textContent  = errs > 0 ? errs + ' errors' : 'None';
+    errEl.style.color  = errs > 0 ? 'var(--red)' : 'var(--green)';
+  })
+  .catch(function() { $id('sReqs').textContent = 'unavailable'; });
+}
+
+/* Stats from oemanager */
+function loadOemStats() {
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: buildRpc('oemanager_dashboard', {})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var p = extractPayload(data);
+    var el = $id('sOem');
+    if (!p || p.error) {
+      el.textContent = 'unreachable';
+      el.style.color = 'var(--red)';
+      return;
+    }
+    var app      = (p.applications && p.applications[0]) || {};
+    var agents   = (app.agents   && app.agents.agents)          ? app.agents.agents.length          : 0;
+    var sessions = (app.sessions && app.sessions.OEABLSession)  ? app.sessions.OEABLSession.length  : 0;
+    el.textContent = agents + ' agent / ' + sessions + ' session(s)';
+    el.style.color = '';
+  })
+  .catch(function() {
+    $id('sOem').textContent = 'unavailable';
+    $id('sOem').style.color = 'var(--red)';
+  });
+}
+
+loadLogStats();
+loadOemStats();
+setInterval(loadLogStats, 10000);
+setInterval(loadOemStats, 10000);
+</script>
+</body>
+</html>

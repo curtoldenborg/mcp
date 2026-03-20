@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PASOE Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:      #0d1117;
+  --surface: #161b22;
+  --surface2:#1c2128;
+  --border:  #30363d;
+  --green:   #3fb950;
+  --red:     #f85149;
+  --yellow:  #d29922;
+  --blue:    #58a6ff;
+  --purple:  #bc8cff;
+  --orange:  #f0883e;
+  --text:    #e6edf3;
+  --muted:   #8b949e;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.topbar-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.live-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.live-dot.error { background: var(--red); box-shadow: 0 0 8px var(--red); animation: none; }
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:0.4; transform:scale(0.8); }
+}
+.topbar-sub { font-size: 12px; color: var(--muted); }
+.spacer { flex: 1; }
+.updated-label { font-size: 11px; color: var(--muted); }
+.updated-label span { color: var(--text); font-weight: 600; }
+.btn {
+  background: #21262d;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 14px;
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn:hover { background: #30363d; }
+.btn.active { border-color: var(--blue); color: var(--blue); }
+.main {
+  flex: 1;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px;
+}
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent, var(--border));
+  border-radius: 10px 10px 0 0;
+}
+.kpi-card.c-green  { --accent: var(--green);  }
+.kpi-card.c-blue   { --accent: var(--blue);   }
+.kpi-card.c-yellow { --accent: var(--yellow); }
+.kpi-card.c-red    { --accent: var(--red);    }
+.kpi-card.c-purple { --accent: var(--purple); }
+.kpi-card.c-orange { --accent: var(--orange); }
+.kpi-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+.kpi-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-sub { font-size: 11px; color: var(--muted); }
+.charts-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
+}
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.card-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.chart-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 160px;
+}
+.bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+.status-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  background: var(--surface2);
+  border-radius: 6px;
+  font-size: 12px;
+}
+.status-row .s-label { color: var(--muted); }
+.status-row .s-val   { font-weight: 700; font-variant-numeric: tabular-nums; }
+.agent-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.agent-item {
+  background: var(--surface2);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.a-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.a-val   { font-size: 20px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.health-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 8px;
+  padding: 8px 0;
+}
+.health-ring {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  border: 6px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  transition: border-color 0.4s, color 0.4s;
+}
+.health-ring.ok   { border-color: var(--green);  color: var(--green);  }
+.health-ring.warn { border-color: var(--yellow); color: var(--yellow); }
+.health-ring.err  { border-color: var(--red);    color: var(--red);    }
+.health-label { font-size: 11px; color: var(--muted); text-align: center; }
+.last-error-box {
+  background: rgba(248,81,73,0.07);
+  border: 1px solid rgba(248,81,73,0.3);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 10px;
+  color: var(--red);
+  font-family: 'Consolas', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: none;
+}
+.last-error-box.visible { display: block; }
+.c-green-text  { color: var(--green); }
+.c-yellow-text { color: var(--yellow); }
+.c-red-text    { color: var(--red); }
+.c-blue-text   { color: var(--blue); }
+.c-muted-text  { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">
+    <div class="live-dot" id="liveDot"></div>
+    PASOE Dashboard
+  </div>
+  <div class="topbar-sub" id="logDateLabel">--</div>
+  <div class="spacer"></div>
+  <div class="updated-label">Refreshed: <span id="lastUpdate">--</span></div>
+  <button class="btn" id="btnPause" onclick="togglePause()">|| Pause</button>
+</div>
+
+<div class="main">
+
+  <div class="kpi-row">
+    <div class="kpi-card c-green">
+      <div class="kpi-label">Total Requests</div>
+      <div class="kpi-value c-green-text" id="kTotal">--</div>
+      <div class="kpi-sub">today</div>
+    </div>
+    <div class="kpi-card c-blue">
+      <div class="kpi-label">2xx Success</div>
+      <div class="kpi-value c-green-text" id="k2xx">--</div>
+      <div class="kpi-sub" id="k2xxPct">--</div>
+    </div>
+    <div class="kpi-card c-yellow">
+      <div class="kpi-label">4xx Client Err</div>
+      <div class="kpi-value c-yellow-text" id="k4xx">--</div>
+      <div class="kpi-sub" id="k4xxPct">--</div>
+    </div>
+    <div class="kpi-card c-red">
+      <div class="kpi-label">5xx Server Err</div>
+      <div class="kpi-value c-red-text" id="k5xx">--</div>
+      <div class="kpi-sub" id="k5xxPct">--</div>
+    </div>
+    <div class="kpi-card c-purple">
+      <div class="kpi-label">Agent Errors</div>
+      <div class="kpi-value" id="kAErr" style="color:var(--purple)">--</div>
+      <div class="kpi-sub" id="kAWarn">-- warnings</div>
+    </div>
+    <div class="kpi-card c-orange">
+      <div class="kpi-label">Data Transferred</div>
+      <div class="kpi-value" id="kBytes" style="color:var(--orange)">--</div>
+      <div class="kpi-sub">total bytes out</div>
+    </div>
+    <div class="kpi-card c-blue">
+      <div class="kpi-label">Active Window</div>
+      <div class="kpi-value" id="kWindow" style="font-size:14px;padding-top:6px">--</div>
+      <div class="kpi-sub">first to last request</div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="card-title">Requests per Hour  (today)</div>
+      <div class="chart-wrap"><canvas id="hourlyChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="card-title">Status Distribution</div>
+      <div class="chart-wrap" style="min-height:140px"><canvas id="statusChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="bottom-row">
+
+    <div class="chart-card">
+      <div class="card-title">Requests per Minute (sparkline)</div>
+      <div class="chart-wrap" style="min-height:100px"><canvas id="sparkChart"></canvas></div>
+    </div>
+
+    <div class="status-card">
+      <div class="card-title">Agent Log Summary</div>
+      <div class="agent-grid">
+        <div class="agent-item">
+          <div class="a-label">REQ</div>
+          <div class="a-val c-green-text" id="aReq">--</div>
+        </div>
+        <div class="agent-item">
+          <div class="a-label">APPL</div>
+          <div class="a-val c-blue-text" id="aAppl">--</div>
+        </div>
+        <div class="agent-item">
+          <div class="a-label">ERRORS</div>
+          <div class="a-val c-red-text" id="aErr">--</div>
+        </div>
+        <div class="agent-item">
+          <div class="a-label">WARNINGS</div>
+          <div class="a-val c-yellow-text" id="aWarn">--</div>
+        </div>
+      </div>
+      <div class="last-error-box" id="lastErrBox"></div>
+    </div>
+
+    <div class="status-card">
+      <div class="card-title">System Health</div>
+      <div class="health-indicator">
+        <div class="health-ring ok" id="healthRing">OK</div>
+        <div class="health-label" id="healthLabel">All systems nominal</div>
+      </div>
+      <div class="status-row">
+        <span class="s-label">5xx error rate</span>
+        <span class="s-val" id="hErrRate">--</span>
+      </div>
+      <div class="status-row">
+        <span class="s-label">Last request</span>
+        <span class="s-val c-blue-text" id="hLastReq">--</span>
+      </div>
+      <div class="status-row">
+        <span class="s-label">Agent log lines</span>
+        <span class="s-val c-muted-text" id="hAgentTotal">--</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var API_URL    = '/web/mcp';
+var REFRESH_MS = 5000;
+var rpcId      = 1;
+var paused     = false;
+var hourlyChart, statusChart, sparkChart;
+
+function buildRpc(tool, args) {
+  return JSON.stringify({
+    jsonrpc: '2.0', id: rpcId++,
+    method: 'tools/call',
+    params: { name: tool, arguments: args || {} }
+  });
+}
+
+function extractPayload(data) {
+  if (data.error) { console.error('RPC', data.error); return null; }
+  var r = data.result;
+  if (!r) return null;
+  if (r.content && r.content.length > 0) {
+    var t = r.content[0].text;
+    if (typeof t === 'string') { try { return JSON.parse(t); } catch(e) { return null; } }
+    if (typeof t === 'object') return t;
+  }
+  return r.lines ? r : (r.result || r);
+}
+
+function fmtBytes(n) {
+  n = parseInt(n) || 0;
+  if (n === 0) return '0 B';
+  if (n < 1024) return n + ' B';
+  if (n < 1048576) return (n/1024).toFixed(1) + ' KB';
+  if (n < 1073741824) return (n/1048576).toFixed(1) + ' MB';
+  return (n/1073741824).toFixed(2) + ' GB';
+}
+
+function pct(a, t) { return t ? ((a/t)*100).toFixed(1)+'%' : '0%'; }
+function $id(id) { return document.getElementById(id); }
+
+Chart.defaults.color = '#8b949e';
+Chart.defaults.font.family = 'Segoe UI, system-ui, sans-serif';
+Chart.defaults.font.size   = 11;
+
+function initCharts() {
+  var hLabels = [];
+  for (var h = 0; h < 24; h++) hLabels.push(h < 10 ? '0'+h : ''+h);
+
+  hourlyChart = new Chart($id('hourlyChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: hLabels,
+      datasets: [{
+        label: 'Requests',
+        data: new Array(24).fill(0),
+        backgroundColor: 'rgba(88,166,255,0.3)',
+        borderColor: '#58a6ff',
+        borderWidth: 1,
+        borderRadius: 3
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 300 },
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: '#21262d' }, ticks: { maxRotation: 0 } },
+        y: { grid: { color: '#21262d' }, beginAtZero: true, ticks: { precision: 0 } }
+      }
+    }
+  });
+
+  statusChart = new Chart($id('statusChart').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['2xx', '4xx', '5xx', 'Other'],
+      datasets: [{
+        data: [0, 0, 0, 0],
+        backgroundColor: ['#3fb950', '#d29922', '#f85149', '#30363d'],
+        borderColor: '#161b22',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 300 },
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { padding: 10, boxWidth: 12 } }
+      }
+    }
+  });
+
+  sparkChart = new Chart($id('sparkChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Req/min',
+        data: [],
+        borderColor: '#3fb950',
+        backgroundColor: 'rgba(63,185,80,0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 3,
+        pointBackgroundColor: '#3fb950'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 300 },
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: '#21262d' } },
+        y: { grid: { color: '#21262d' }, beginAtZero: true, ticks: { precision: 0 } }
+      }
+    }
+  });
+}
+
+function updateHealth(d) {
+  var total    = d.total_requests || 0;
+  var s5       = d.status_5xx    || 0;
+  var aErr     = d.agent_errors  || 0;
+  var errRate  = total > 0 ? ((s5 / total) * 100).toFixed(2) : '0.00';
+
+  $id('hErrRate').textContent    = errRate + '%';
+  $id('hLastReq').textContent    = d.last_req_time  || '--';
+  $id('hAgentTotal').textContent = (d.agent_total   || 0) + ' lines';
+
+  var ring = $id('healthRing');
+  var lbl  = $id('healthLabel');
+  if (s5 > 0 || aErr > 0) {
+    ring.className = 'health-ring err';
+    ring.textContent = 'ERROR';
+    lbl.textContent  = s5 + ' server errors  |  ' + aErr + ' agent errors';
+    $id('hErrRate').className = 's-val c-red-text';
+  } else if (d.status_4xx > 0) {
+    ring.className = 'health-ring warn';
+    ring.textContent = 'WARN';
+    lbl.textContent  = d.status_4xx + ' client errors today';
+    $id('hErrRate').className = 's-val c-yellow-text';
+  } else {
+    ring.className = 'health-ring ok';
+    ring.textContent = 'OK';
+    lbl.textContent  = 'All systems nominal';
+    $id('hErrRate').className = 's-val c-green-text';
+  }
+}
+
+function updateDashboard(d) {
+  var total = d.total_requests || 0;
+  var s2    = d.status_2xx     || 0;
+  var s4    = d.status_4xx     || 0;
+  var s5    = d.status_5xx     || 0;
+  var other = Math.max(0, total - s2 - s4 - s5);
+
+  $id('kTotal').textContent  = total.toLocaleString();
+  $id('k2xx').textContent    = s2.toLocaleString();
+  $id('k2xxPct').textContent = pct(s2, total);
+  $id('k4xx').textContent    = s4.toLocaleString();
+  $id('k4xxPct').textContent = pct(s4, total);
+  $id('k5xx').textContent    = s5.toLocaleString();
+  $id('k5xxPct').textContent = pct(s5, total);
+  $id('kAErr').textContent   = (d.agent_errors   || 0).toLocaleString();
+  $id('kAWarn').textContent  = (d.agent_warnings || 0) + ' warnings';
+  $id('kBytes').textContent  = fmtBytes(d.total_bytes);
+  $id('kWindow').textContent = (d.first_req_time || '--') + ' - ' + (d.last_req_time || '--');
+  $id('logDateLabel').textContent = d.log_date || '';
+
+  if (hourlyChart && d.hourly_counts) {
+    hourlyChart.data.datasets[0].data = d.hourly_counts;
+    hourlyChart.update('none');
+  }
+  if (statusChart) {
+    statusChart.data.datasets[0].data = [s2, s4, s5, other];
+    statusChart.update('none');
+  }
+  if (sparkChart && d.spark_counts) {
+    sparkChart.data.labels              = d.spark_labels || [];
+    sparkChart.data.datasets[0].data   = d.spark_counts;
+    sparkChart.update('none');
+  }
+
+  $id('aReq').textContent  = (d.agent_req      || 0).toLocaleString();
+  $id('aAppl').textContent = (d.agent_appl     || 0).toLocaleString();
+  $id('aErr').textContent  = (d.agent_errors   || 0).toLocaleString();
+  $id('aWarn').textContent = (d.agent_warnings || 0).toLocaleString();
+
+  var errBox = $id('lastErrBox');
+  if (d.last_error_msg && d.last_error_msg !== '') {
+    errBox.textContent = (d.last_error_ts ? '[' + d.last_error_ts + ']  ' : '') + d.last_error_msg;
+    errBox.className   = 'last-error-box visible';
+  } else {
+    errBox.className = 'last-error-box';
+  }
+
+  updateHealth(d);
+  $id('lastUpdate').textContent = new Date().toTimeString().substring(0, 8);
+  $id('liveDot').className = 'live-dot';
+}
+
+function fetchDashboard() {
+  if (paused) return;
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: buildRpc('pasoe_dashboard_stats', {})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var p = extractPayload(data);
+    if (!p) {
+      $id('liveDot').className = 'live-dot error';
+      $id('lastUpdate').textContent = 'Parse error - check console';
+      return;
+    }
+    updateDashboard(p);
+  })
+  .catch(function(e) {
+    $id('liveDot').className = 'live-dot error';
+    $id('lastUpdate').textContent = 'Error: ' + e.message;
+    console.error(e);
+  });
+}
+
+function togglePause() {
+  paused = !paused;
+  var btn = $id('btnPause');
+  if (paused) {
+    btn.textContent = '> Resume';
+    btn.classList.add('active');
+  } else {
+    btn.textContent = '|| Pause';
+    btn.classList.remove('active');
+    fetchDashboard();
+  }
+}
+
+initCharts();
+fetchDashboard();
+setInterval(fetchDashboard, REFRESH_MS);
+</script>
+</body>
+</html>

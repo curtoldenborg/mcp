@@ -12,6 +12,7 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
      
     DEFINE PROTECTED VARIABLE uid AS CHAR NO-UNDO. 
     DEFINE PRIVATE VARIABLE oTools AS web.api.mcp.tools NO-UNDO.
+    DEFINE PRIVATE VARIABLE doLogging AS LOGICAL INIT TRUE NO-UNDO. 
   
     CONSTRUCTOR PUBLIC mcphandler (  ):
         SUPER ().
@@ -19,9 +20,7 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
         
         IF NOT web.api.mcp.tools:ToolsAreInstantiated OR 
                web.api.mcp.tools:ToolsActiveReload THEN 
-            
-            oTools = NEW web.api.mcp.tools(). 
-            
+              oTools = NEW web.api.mcp.tools(). 
     
     END CONSTRUCTOR.
     
@@ -29,9 +28,16 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
     METHOD OVERRIDE PROTECTED INTEGER HandlePost(INPUT poRequest AS OpenEdge.Web.IWebRequest):
         DEFINE VARIABLE eMcpMethodEnum AS web.api.mcp.methodenum NO-UNDO.     
 
-        doLogBodyToFile(CAST(poRequest:Entity, JsonObject),'Request').
         eMcpMethodEnum = getMcpMethod(poRequest).  
-     
+        IF eMcpMethodEnum  = web.api.mcp.methodenum:Tools_Call AND 
+          ( getMcpToolName(poRequest) MATCHES "*_log_tail" OR
+            getMcpToolName(poRequest) MATCHES "*_dashboard*" )
+          THEN
+             DoLogging = false.  
+        
+        doLogBodyToFile(CAST(poRequest:Entity, JsonObject),'Request').
+        IF dologging THEN LOG-MANAGER:WRITE-MESSAGE("Request " + STRING(eMcpMethodEnum) ,"REQ").  
+               
         CASE eMcpMethodEnum:
             WHEN web.api.mcp.methodenum:Initialize                THEN  mcp_Initialize(poRequest).
             WHEN web.api.mcp.methodenum:Notifications_Initialized THEN  mcp_notifications_initialized(poRequest).
@@ -64,13 +70,15 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
             ELSE  LOG-MANAGER:WRITE-MESSAGE("Missing method in body!","ERR").  
         END.     
         ELSE  LOG-MANAGER:WRITE-MESSAGE("Missing jsonobject in body!","ERR").  
-        LOG-MANAGER:WRITE-MESSAGE("Request " + cMethod ,"REQ").  
+        
         RETURN eMethod.            
     END. 
   
     METHOD PROTECTED VOID doLogBodyToFile(INPUT oRequestJson AS jsonobject,direction AS CHARACTER):
         DEFINE VARIABLE cRawJson AS LONGCHAR NO-UNDO.
         DEFINE VARIABLE cFIle AS CHAR NO-UNDO. 
+         
+        IF NOT doLogging THEN RETURN. 
               
         //cRawJson = oRequestJson:GetJsonText(). // unformatted 
         oRequestJson:Write(cRawJson, TRUE).      // formatted 
@@ -116,6 +124,19 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
         oWriter:Close().
     END. 
     
+    METHOD PROTECTED CHARACTER getMcpToolName (INPUT poRequest AS OpenEdge.Web.IWebRequest):
+        DEFINE VARIABLE oRequest      AS JsonObject                      NO-UNDO.
+        DEFINE VARIABLE oParams       AS JsonObject                      NO-UNDO.
+        DEFINE VARIABLE cToolName     AS CHARACTER                       NO-UNDO.
+       
+        oRequest = CAST(poRequest:Entity, JsonObject).
+        
+        /* 1. Navigate into "params" to get tool metadata */
+        oParams   = oRequest:GetJsonObject("params").
+        cToolName = oParams:GetCharacter("name"). /* "toolname class" */
+        RETURN cToolName. 
+    END. 
+    
     METHOD PROTECTED INTEGER mcp_tools_call(INPUT poRequest AS OpenEdge.Web.IWebRequest):
         DEFINE VARIABLE oRequest      AS JsonObject                      NO-UNDO.
         DEFINE VARIABLE oParams       AS JsonObject                      NO-UNDO.
@@ -138,7 +159,7 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
         cToolName = oParams:GetCharacter("name"). /* "toolname class" */
         cClassName = web.api.mcp.tools:GetToolClassName(cToolname).
    
-        LOG-MANAGER:WRITE-MESSAGE("Exec tool:" + cToolname + " id:" + STRING(iRequestId)).
+        IF doLogging THEN LOG-MANAGER:WRITE-MESSAGE("Exec tool:" + cToolname + " id:" + STRING(iRequestId)).
   
         oResponse = NEW OpenEdge.Web.WebResponse().
         oResponse:StatusCode  = INTEGER(StatusCodeEnum:OK). // 200 OK

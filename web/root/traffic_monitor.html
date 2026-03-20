@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PASOE Traffic Monitor</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --green: #3fb950;
+    --red: #f85149;
+    --yellow: #d29922;
+    --blue: #58a6ff;
+    --purple: #bc8cff;
+    --text: #e6edf3;
+    --muted: #8b949e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+  .topbar-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .live-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .live-dot.paused { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); animation: none; }
+  .live-dot.error  { background: var(--red);    box-shadow: 0 0 6px var(--red);    animation: none; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+  .stat-pill {
+    background: #21262d;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .stat-pill span { color: var(--text); font-weight: 600; }
+  .spacer { flex: 1; }
+  .filter-input {
+    background: #21262d;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 10px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 12px;
+    width: 200px;
+    outline: none;
+  }
+  .filter-input:focus { border-color: var(--blue); }
+  .filter-input::placeholder { color: var(--muted); }
+  .btn {
+    background: #21262d;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 12px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: #30363d; }
+  .btn.active { border-color: var(--blue); color: var(--blue); }
+  .btn.danger:hover { border-color: var(--red); color: var(--red); }
+  .statusbar {
+    background: #0d1117;
+    border-bottom: 1px solid var(--border);
+    padding: 5px 16px;
+    display: flex;
+    gap: 20px;
+    font-size: 11px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .statusbar .ok    { color: #3fb950; font-weight: 600; }
+  .statusbar .redir { color: #58a6ff; font-weight: 600; }
+  .statusbar .warn  { color: #d29922; font-weight: 600; }
+  .statusbar .err   { color: #f85149; font-weight: 600; }
+  .statusbar .last-update { margin-left: auto; }
+  .console-header {
+    display: grid;
+    grid-template-columns: 90px 130px 52px 60px 1fr 70px;
+    gap: 0 12px;
+    padding: 5px 16px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .console-header span:last-child { text-align: right; }
+  .console {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+  }
+  .console::-webkit-scrollbar { width: 6px; }
+  .console::-webkit-scrollbar-track { background: transparent; }
+  .console::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .log-row {
+    display: grid;
+    grid-template-columns: 90px 130px 52px 60px 1fr 70px;
+    gap: 0 12px;
+    padding: 2px 16px;
+    line-height: 1.65;
+    border-bottom: 1px solid transparent;
+    animation: fadeIn 0.2s ease;
+  }
+  .log-row:hover { background: #161b22; border-color: var(--border); }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-2px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .col-time   { color: var(--muted); font-size: 11px; }
+  .col-ip     { color: var(--purple); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .col-method { font-weight: 700; text-align: center; }
+  .col-status { font-weight: 700; text-align: center; }
+  .col-path   { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .col-bytes  { color: var(--muted); text-align: right; font-size: 11px; }
+  .method-GET    { color: #3fb950; }
+  .method-POST   { color: #58a6ff; }
+  .method-PUT    { color: #d29922; }
+  .method-DELETE { color: #f85149; }
+  .method-OTHER  { color: var(--muted); }
+  .status-2xx { color: #3fb950; }
+  .status-3xx { color: #58a6ff; }
+  .status-4xx { color: #d29922; }
+  .status-5xx { color: #f85149; }
+  .status-xxx { color: var(--muted); }
+  .new-badge {
+    display: inline-block;
+    background: #3fb950;
+    color: #000;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-right: 5px;
+    vertical-align: middle;
+    animation: badgeFade 2.5s ease forwards;
+  }
+  @keyframes badgeFade { 0%{opacity:1} 60%{opacity:1} 100%{opacity:0} }
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 10px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">
+    <div class="live-dot" id="liveDot"></div>
+    PASOE Traffic Monitor
+  </div>
+  <div class="stat-pill">Total <span id="statTotal">--</span></div>
+  <div class="stat-pill">Vist <span id="statShown">--</span></div>
+  <div class="stat-pill">Req/min <span id="statRpm">--</span></div>
+  <div class="spacer"></div>
+  <input class="filter-input" id="filterInput" type="text" placeholder="Filter path / IP / status..." oninput="applyFilter()">
+  <button class="btn" onclick="cycleLines()">Vis: <span id="lineLabelTxt">100</span></button>
+  <button class="btn" id="btnPause" onclick="togglePause()">|| Pause</button>
+  <button class="btn danger" onclick="clearConsole()">Clear</button>
+</div>
+
+<div class="console-header">
+  <span>Tid</span>
+  <span>IP</span>
+  <span>Method</span>
+  <span>Status</span>
+  <span>Path</span>
+  <span>Bytes</span>
+</div>
+
+<div class="statusbar">
+  <span>2xx: <span class="ok"    id="cnt200">0</span></span>
+  <span>3xx: <span class="redir" id="cnt300">0</span></span>
+  <span>4xx: <span class="warn"  id="cnt400">0</span></span>
+  <span>5xx: <span class="err"   id="cnt500">0</span></span>
+  <span class="last-update">Updated: <span id="lastUpdate">--</span></span>
+</div>
+
+<div class="console" id="console">
+  <div class="empty-state" id="emptyState">
+    <div>[ waiting for traffic... ]</div>
+  </div>
+</div>
+
+<script>
+  var API_URL     = '/web/mcp';
+  var INTERVAL_MS = 1000;
+  var LINE_STEPS  = [50, 100, 200, 500];
+  var rpcId       = 1;
+
+  var paused      = false;
+  var filterText  = '';
+  var lineStepIdx = 1;
+  var knownSet    = {};
+  var shownRows   = [];
+  var counts      = {c2:0, c3:0, c4:0, c5:0};
+  var rpmHistory  = [];
+  var totalFromServer = 0;
+
+  function buildRpcBody(toolName, args) {
+    return JSON.stringify({
+      jsonrpc: '2.0',
+      id: rpcId++,
+      method: 'tools/call',
+      params: {
+        name: toolName,
+        arguments: args
+      }
+    });
+  }
+
+  function extractPayload(data) {
+    if (data.error) {
+      console.error('RPC error:', JSON.stringify(data.error));
+      return null;
+    }
+    var result = data.result;
+    if (!result) return null;
+
+    // Standard MCP: result.content[0].text = JSON string
+    if (result.content && result.content.length > 0) {
+      var text = result.content[0].text;
+      if (typeof text === 'string') {
+        try { return JSON.parse(text); } catch(e) { console.error('JSON parse error:', e); }
+        return null;
+      }
+      if (typeof text === 'object') return text;
+    }
+
+    if (result.lines)   return result;
+    if (result.result)  return result.result;
+    return result;
+  }
+
+  function parseLogLine(raw) {
+    var ip = '', timeStr = '', method = '', path = '', status = '', bytes = '';
+
+    var ipM = raw.match(/^(\S+)/);
+    if (ipM) ip = ipM[1];
+
+    var tsM = raw.match(/\[([^\]]+)\]/);
+    if (tsM) {
+      var tsRaw = tsM[1];
+      var tPart = tsRaw.split('T');
+      if (tPart.length === 2) {
+        timeStr = tPart[1].substring(0, 8);
+      } else {
+        var tcM = tsRaw.match(/(\d{2}:\d{2}:\d{2})/);
+        if (tcM) timeStr = tcM[1];
+      }
+    }
+
+    var reqM = raw.match(/"([^"]*)"/);
+    if (reqM) {
+      var parts = reqM[1].split(' ');
+      method = parts[0] || '';
+      path   = parts[1] || '';
+    }
+
+    var lastQ = raw.lastIndexOf('"');
+    if (lastQ >= 0) {
+      var after = raw.substring(lastQ + 1).trim().split(/\s+/);
+      status = after[0] || '';
+      bytes  = (after[1] && after[1] !== '-') ? after[1] : (after[2] || '');
+    }
+
+    return { raw:raw, ip:ip, time:timeStr, method:method, path:path, status:status, bytes:bytes };
+  }
+
+  function formatBytes(b) {
+    var n = parseInt(b);
+    if (isNaN(n) || n <= 0) return '-';
+    if (n < 1024) return n + ' B';
+    if (n < 1048576) return (n/1024).toFixed(1) + ' KB';
+    return (n/1048576).toFixed(1) + ' MB';
+  }
+
+  function statusClass(s) {
+    var c = parseInt(s);
+    if (c >= 200 && c < 300) return 'status-2xx';
+    if (c >= 300 && c < 400) return 'status-3xx';
+    if (c >= 400 && c < 500) return 'status-4xx';
+    if (c >= 500) return 'status-5xx';
+    return 'status-xxx';
+  }
+
+  function methodClass(m) {
+    var map = {GET:'GET', POST:'POST', PUT:'PUT', DELETE:'DELETE'};
+    return 'method-' + (map[m] || 'OTHER');
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function renderRow(entry, isNew) {
+    var div = document.createElement('div');
+    div.className = 'log-row';
+
+    if (filterText) {
+      var visible =
+        entry.path.toLowerCase().indexOf(filterText) >= 0 ||
+        entry.ip.indexOf(filterText) >= 0 ||
+        entry.status.indexOf(filterText) >= 0;
+      if (!visible) div.style.display = 'none';
+    }
+
+    var badge = isNew ? '<span class="new-badge">NEW</span>' : '';
+    div.innerHTML =
+      '<span class="col-time">'  + entry.time + '</span>' +
+      '<span class="col-ip">'    + escHtml(entry.ip) + '</span>' +
+      '<span class="col-method ' + methodClass(entry.method) + '">' + (entry.method || '?') + '</span>' +
+      '<span class="col-status ' + statusClass(entry.status) + '">' + (entry.status || '?') + '</span>' +
+      '<span class="col-path">'  + badge + escHtml(entry.path) + '</span>' +
+      '<span class="col-bytes">' + formatBytes(entry.bytes) + '</span>';
+
+    return div;
+  }
+
+  function fetchLog() {
+    if (paused) return;
+
+    var lineCount = LINE_STEPS[lineStepIdx];
+
+    fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: buildRpcBody('get_pasoe_log_tail', { lines: lineCount })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (rpcId <= 3) console.log('RPC raw response:', JSON.stringify(data).substring(0, 400));
+
+      var payload = extractPayload(data);
+      if (!payload) {
+        document.getElementById('liveDot').className = 'live-dot error';
+        document.getElementById('lastUpdate').textContent = 'Parse error - check console';
+        return;
+      }
+
+      document.getElementById('liveDot').className = 'live-dot';
+
+      var lines = payload.lines || [];
+      totalFromServer = payload.total_lines || lines.length;
+
+      var consoleEl = document.getElementById('console');
+      var newCount  = 0;
+      var now       = Date.now();
+
+      lines.forEach(function(raw) {
+        if (!raw || knownSet[raw]) return;
+        knownSet[raw] = true;
+        newCount++;
+
+        var entry = parseLogLine(raw);
+        shownRows.push(entry);
+        rpmHistory.push(now);
+
+        var c = parseInt(entry.status);
+        if      (c >= 200 && c < 300) counts.c2++;
+        else if (c >= 300 && c < 400) counts.c3++;
+        else if (c >= 400 && c < 500) counts.c4++;
+        else if (c >= 500)            counts.c5++;
+      });
+
+      var emptyEl = document.getElementById('emptyState');
+      if (shownRows.length > 0 && emptyEl) emptyEl.remove();
+
+      if (newCount > 0) {
+        var toShow = shownRows.slice(-lineCount);
+        consoleEl.innerHTML = '';
+        toShow.forEach(function(entry, idx) {
+          var isNew = idx >= toShow.length - newCount;
+          consoleEl.appendChild(renderRow(entry, isNew));
+        });
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+      }
+
+      rpmHistory = rpmHistory.filter(function(t) { return now - t < 60000; });
+
+      document.getElementById('statTotal').textContent = totalFromServer;
+      document.getElementById('statShown').textContent = shownRows.length;
+      document.getElementById('statRpm').textContent   = rpmHistory.length;
+      document.getElementById('cnt200').textContent    = counts.c2;
+      document.getElementById('cnt300').textContent    = counts.c3;
+      document.getElementById('cnt400').textContent    = counts.c4;
+      document.getElementById('cnt500').textContent    = counts.c5;
+
+      var d = new Date();
+      document.getElementById('lastUpdate').textContent = d.toTimeString().substring(0, 8);
+    })
+    .catch(function(e) {
+      document.getElementById('liveDot').className = 'live-dot error';
+      document.getElementById('lastUpdate').textContent = 'Error: ' + e.message;
+      console.error('Fetch error:', e);
+    });
+  }
+
+  function togglePause() {
+    paused = !paused;
+    var dot = document.getElementById('liveDot');
+    var btn = document.getElementById('btnPause');
+    if (paused) {
+      dot.className = 'live-dot paused';
+      btn.textContent = '> Play';
+      btn.classList.add('active');
+    } else {
+      dot.className = 'live-dot';
+      btn.textContent = '|| Pause';
+      btn.classList.remove('active');
+    }
+  }
+
+  function cycleLines() {
+    lineStepIdx = (lineStepIdx + 1) % LINE_STEPS.length;
+    document.getElementById('lineLabelTxt').textContent = LINE_STEPS[lineStepIdx];
+  }
+
+  function clearConsole() {
+    knownSet   = {};
+    shownRows  = [];
+    counts     = {c2:0, c3:0, c4:0, c5:0};
+    rpmHistory = [];
+    document.getElementById('console').innerHTML =
+      '<div class="empty-state" id="emptyState"><div>[ waiting for traffic... ]</div></div>';
+    ['statTotal','statShown','statRpm'].forEach(function(id){
+      document.getElementById(id).textContent = '--';
+    });
+    ['cnt200','cnt300','cnt400','cnt500'].forEach(function(id){
+      document.getElementById(id).textContent = '0';
+    });
+  }
+
+  function applyFilter() {
+    filterText = document.getElementById('filterInput').value.toLowerCase().trim();
+    var rows = document.querySelectorAll('.log-row');
+    rows.forEach(function(row) {
+      var p  = (row.querySelector('.col-path')   || {textContent:''}).textContent.toLowerCase();
+      var ip = (row.querySelector('.col-ip')     || {textContent:''}).textContent.toLowerCase();
+      var st = (row.querySelector('.col-status') || {textContent:''}).textContent;
+      var show = !filterText ||
+        p.indexOf(filterText) >= 0 ||
+        ip.indexOf(filterText) >= 0 ||
+        st.indexOf(filterText) >= 0;
+      row.style.display = show ? '' : 'none';
+    });
+  }
+
+  fetchLog();
+  setInterval(fetchLog, INTERVAL_MS);
+</script>
+</body>
+</html>

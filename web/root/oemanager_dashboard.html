@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PASOE Internal Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:      #0d1117;
+  --surface: #161b22;
+  --surface2:#1c2128;
+  --surface3:#21262d;
+  --border:  #30363d;
+  --green:   #3fb950;
+  --red:     #f85149;
+  --yellow:  #d29922;
+  --blue:    #58a6ff;
+  --purple:  #bc8cff;
+  --orange:  #f0883e;
+  --cyan:    #39d353;
+  --text:    #e6edf3;
+  --muted:   #8b949e;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+.topbar-title {
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.live-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 7px var(--green);
+  animation: pulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.live-dot.error  { background: var(--red);    box-shadow: 0 0 7px var(--red);    animation: none; }
+.live-dot.paused { background: var(--yellow); box-shadow: 0 0 7px var(--yellow); animation: none; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+.topbar-badge {
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.topbar-badge span { color: var(--text); font-weight: 600; }
+.spacer { flex: 1; }
+.uptime-label { font-size: 11px; color: var(--muted); }
+.uptime-label span { color: var(--cyan); font-weight: 700; }
+.updated-label { font-size: 11px; color: var(--muted); }
+.updated-label span { color: var(--text); font-weight: 600; }
+.btn {
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 12px;
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn:hover { background: var(--border); }
+.btn.active { border-color: var(--blue); color: var(--blue); }
+
+/* ── MAIN ── */
+.main {
+  flex: 1;
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+}
+
+/* ── KPI ROW ── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent, var(--border));
+  border-radius: 10px 10px 0 0;
+}
+.kpi-card.c-green  { --accent: var(--green);  }
+.kpi-card.c-blue   { --accent: var(--blue);   }
+.kpi-card.c-yellow { --accent: var(--yellow); }
+.kpi-card.c-red    { --accent: var(--red);    }
+.kpi-card.c-purple { --accent: var(--purple); }
+.kpi-card.c-cyan   { --accent: var(--cyan);   }
+.kpi-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+.kpi-value { font-size: 24px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.kpi-sub   { font-size: 11px; color: var(--muted); }
+.kpi-sub span { font-weight: 600; }
+
+/* ── TWO-COL ROW ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.card-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-count {
+  background: var(--surface3);
+  border-radius: 20px;
+  padding: 1px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ── STATE BADGE ── */
+.badge {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.badge-green  { background: rgba(63,185,80,0.15);  color: var(--green);  border: 1px solid rgba(63,185,80,0.3);  }
+.badge-blue   { background: rgba(88,166,255,0.15); color: var(--blue);   border: 1px solid rgba(88,166,255,0.3); }
+.badge-yellow { background: rgba(210,153,34,0.15); color: var(--yellow); border: 1px solid rgba(210,153,34,0.3); }
+.badge-red    { background: rgba(248,81,73,0.15);  color: var(--red);    border: 1px solid rgba(248,81,73,0.3);  }
+.badge-muted  { background: rgba(139,148,158,0.1); color: var(--muted);  border: 1px solid rgba(139,148,158,0.2);}
+
+/* ── AGENTS TABLE ── */
+.agent-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 80px 100px;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--surface2);
+  border-radius: 6px;
+  align-items: center;
+  font-size: 12px;
+}
+.agent-row.header { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; background: transparent; padding: 4px 10px; }
+.agent-id { font-family: 'Consolas', monospace; font-size: 11px; color: var(--purple); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agent-pid { font-family: 'Consolas', monospace; color: var(--muted); }
+
+/* ── SESSIONS TABLE ── */
+.sessions-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.sessions-table th {
+  padding: 5px 8px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+.sessions-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(48,54,61,0.5);
+  font-family: 'Consolas', monospace;
+  font-size: 11px;
+  vertical-align: middle;
+}
+.sessions-table tr:last-child td { border-bottom: none; }
+.sessions-table tr:hover td { background: var(--surface2); }
+.td-id     { color: var(--muted); max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.td-state  { }
+.td-type   { color: var(--cyan); }
+.td-adapter{ color: var(--blue); }
+.td-elapsed{ color: var(--yellow); }
+.td-client { color: var(--purple); }
+.td-proc   { color: var(--text); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.td-thread { color: var(--muted); }
+.no-sessions { color: var(--muted); font-size: 12px; padding: 12px 0; text-align: center; }
+
+/* ── TRANSPORTS ── */
+.transport-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: var(--surface2);
+  border-radius: 6px;
+  font-size: 12px;
+}
+.transport-name { font-weight: 700; color: var(--text); }
+.transport-uri  { font-size: 10px; color: var(--muted); font-family: 'Consolas', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
+
+/* ── METRICS / PROPS ── */
+.metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: var(--surface2);
+  border-radius: 6px;
+  font-size: 12px;
+}
+.metric-label { color: var(--muted); }
+.metric-val   { font-weight: 700; font-variant-numeric: tabular-nums; font-family: 'Consolas', monospace; }
+.metric-val.green  { color: var(--green);  }
+.metric-val.blue   { color: var(--blue);   }
+.metric-val.yellow { color: var(--yellow); }
+.metric-val.red    { color: var(--red);    }
+.metric-val.cyan   { color: var(--cyan);   }
+.metric-val.muted  { color: var(--muted);  }
+
+/* ── CHART ── */
+.chart-wrap { position: relative; min-height: 140px; }
+
+/* ── ERROR BOX ── */
+.error-box {
+  background: rgba(248,81,73,0.07);
+  border: 1px solid rgba(248,81,73,0.3);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--red);
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-title">
+    <div class="live-dot" id="liveDot"></div>
+    PASOE Internal Dashboard
+  </div>
+  <div class="topbar-badge">OEManager <span id="tbVersion">--</span></div>
+  <div class="topbar-badge">App <span id="tbApp">--</span></div>
+  <div class="topbar-badge">PID <span id="tbPid">--</span></div>
+  <div class="spacer"></div>
+  <div class="uptime-label">Uptime: <span id="tbUptime">--</span></div>
+  <div class="updated-label">Refreshed: <span id="lastUpdate">--</span></div>
+  <button class="btn" id="btnPause" onclick="togglePause()">|| Pause</button>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="mainContent">
+  <div style="color:var(--muted);text-align:center;padding:40px">Loading OEManager data...</div>
+</div>
+
+<script>
+var API_URL    = '/web/mcp';
+var REFRESH_MS = 5000;
+var rpcId      = 1;
+var paused     = false;
+var startTime  = null;
+var ioChart    = null;
+var ioHistory  = { reads:[], writes:[], labels:[] };
+var MAX_IO_POINTS = 20;
+
+function buildRpc(tool, args) {
+  return JSON.stringify({
+    jsonrpc: '2.0', id: rpcId++,
+    method: 'tools/call',
+    params: { name: tool, arguments: args || {} }
+  });
+}
+
+function extractPayload(data) {
+  if (data.error) { console.error('RPC', data.error); return null; }
+  var r = data.result;
+  if (!r) return null;
+  if (r.content && r.content.length > 0) {
+    var t = r.content[0].text;
+    if (typeof t === 'string') { try { return JSON.parse(t); } catch(e) { console.error(e); return null; } }
+    if (typeof t === 'object') return t;
+  }
+  return r.applications ? r : (r.result || r);
+}
+
+function $id(id) { return document.getElementById(id); }
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function fmtUptime(startStr) {
+  if (!startStr) return '--';
+  var s = new Date(startStr);
+  if (isNaN(s.getTime())) return '--';
+  var diffMs = Date.now() - s.getTime();
+  var h = Math.floor(diffMs / 3600000);
+  var m = Math.floor((diffMs % 3600000) / 60000);
+  var sec = Math.floor((diffMs % 60000) / 1000);
+  return (h > 0 ? h + 'h ' : '') + m + 'm ' + sec + 's';
+}
+
+function fmtMs(ms) {
+  ms = parseInt(ms) || 0;
+  if (ms < 1000) return ms + ' ms';
+  if (ms < 60000) return (ms/1000).toFixed(1) + ' s';
+  return Math.floor(ms/60000) + ' min';
+}
+
+function stateBadge(state) {
+  state = (state || '').toUpperCase();
+  if (state === 'AVAILABLE')  return '<span class="badge badge-green">'  + state + '</span>';
+  if (state === 'RESERVED')   return '<span class="badge badge-yellow">' + state + '</span>';
+  if (state === 'RUNNING')    return '<span class="badge badge-blue">'   + state + '</span>';
+  if (state === 'BUSY')       return '<span class="badge badge-yellow">' + state + '</span>';
+  if (state === 'ENABLED')    return '<span class="badge badge-green">'  + state + '</span>';
+  if (state === 'DISABLED')   return '<span class="badge badge-muted">'  + state + '</span>';
+  if (state === 'STARTED')    return '<span class="badge badge-green">'  + state + '</span>';
+  if (state === 'STOPPED')    return '<span class="badge badge-red">'    + state + '</span>';
+  return '<span class="badge badge-muted">' + state + '</span>';
+}
+
+/* ── IO sparkline chart ── */
+function initIoChart() {
+  var ctx = $id('ioChart');
+  if (!ctx) return;
+  ioChart = new Chart(ctx.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [
+        { label: 'Reads',  data: [], borderColor: '#58a6ff', backgroundColor: 'rgba(88,166,255,0.1)', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 },
+        { label: 'Writes', data: [], borderColor: '#3fb950', backgroundColor: 'rgba(63,185,80,0.1)',  borderWidth: 2, fill: true, tension: 0.4, pointRadius: 2 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 300 },
+      plugins: { legend: { position: 'top', labels: { boxWidth: 10, padding: 10 } } },
+      scales: {
+        x: { grid: { color: '#21262d' } },
+        y: { grid: { color: '#21262d' }, beginAtZero: false, ticks: { precision: 0 } }
+      }
+    }
+  });
+}
+
+/* ── Build full dashboard HTML ── */
+function buildDashboard(d) {
+  if (!d.applications || d.applications.length === 0) {
+    return '<div class="error-box">No applications found in OEManager response.</div>';
+  }
+
+  var app     = d.applications[0];
+  var metrics = app.metrics || {};
+  var props   = app.properties || {};
+  var agents  = (app.agents && app.agents.agents) ? app.agents.agents : [];
+  var sessions= (app.sessions && app.sessions.OEABLSession) ? app.sessions.OEABLSession : [];
+  var webapps = app.webapps || [];
+  var transports = (webapps.length > 0 && webapps[0].transports) ? webapps[0].transports : [];
+
+  /* Update topbar */
+  $id('tbVersion').textContent = d.oemanager_version || '--';
+  $id('tbApp').textContent     = app.name || '--';
+  var firstAgent = agents[0] || {};
+  $id('tbPid').textContent     = firstAgent.pid || '--';
+  if (metrics.startTime) startTime = metrics.startTime;
+
+  /* ── KPI cards ── */
+  var totalReqs  = metrics.requests || 0;
+  var concurrent = metrics.concurrentConnectedClients || 0;
+  var maxConc    = metrics.maxConcurrentClients || 0;
+  var reads      = metrics.reads  || 0;
+  var writes     = metrics.writes || 0;
+  var rdErr      = metrics.readErrors  || 0;
+  var wrErr      = metrics.writeErrors || 0;
+  var ablWaits   = metrics.numReserveABLSessionWaits    || 0;
+  var ablTimeouts= metrics.numReserveABLSessionTimeouts || 0;
+
+  var kpiHtml =
+    '<div class="kpi-row">' +
+      kpiCard('c-blue',   'Total Requests',    fmtNum(totalReqs),  'since startup', 'var(--blue)') +
+      kpiCard('c-green',  'Active Sessions',   sessions.length,    agents.length + ' agent(s) running', 'var(--green)') +
+      kpiCard('c-cyan',   'Concurrent Clients', concurrent + ' / ' + maxConc, 'current / max ever', 'var(--cyan)', '18px') +
+      kpiCard('c-yellow', 'ABL Session Waits', ablWaits,           ablTimeouts + ' timeouts', ablWaits > 0 ? 'var(--yellow)' : 'var(--green)') +
+      kpiCard('c-purple', 'Reads / Writes',    fmtNum(reads) + ' / ' + fmtNum(writes), 'I/O operations', 'var(--purple)', '16px') +
+      kpiCard('c-red',    'I/O Errors',        rdErr + wrErr,      rdErr + ' read / ' + wrErr + ' write', (rdErr+wrErr) > 0 ? 'var(--red)' : 'var(--green)') +
+    '</div>';
+
+  /* ── Agents + Transports ── */
+  var agentsHtml = '<div class="agent-row header"><span>Agent ID</span><span>PID</span><span>State</span><span>Status</span></div>';
+  agents.forEach(function(a) {
+    agentsHtml +=
+      '<div class="agent-row">' +
+        '<span class="agent-id" title="' + escHtml(a.agentId) + '">' + escHtml((a.agentId||'').substring(0,16) + '...') + '</span>' +
+        '<span class="agent-pid">' + escHtml(a.pid) + '</span>' +
+        stateBadge(a.state) +
+        '<span class="badge badge-green">ONLINE</span>' +
+      '</div>';
+  });
+  if (agents.length === 0) agentsHtml += '<div class="no-sessions">No agents found</div>';
+
+  var transportHtml = '';
+  transports.forEach(function(t) {
+    transportHtml +=
+      '<div class="transport-row">' +
+        '<span class="transport-name">' + escHtml(t.name) + '</span>' +
+        '<span class="transport-uri">' + escHtml(t.uri || '') + '</span>' +
+        stateBadge(t.state) +
+      '</div>';
+  });
+  if (transports.length === 0) transportHtml = '<div class="no-sessions">No transport data</div>';
+
+  var agentTransportHtml =
+    '<div class="two-col">' +
+      '<div class="card"><div class="card-title">Agents <span class="card-count">' + agents.length + '</span></div>' + agentsHtml + '</div>' +
+      '<div class="card"><div class="card-title">Transports</div>' + transportHtml + '</div>' +
+    '</div>';
+
+  /* ── Sessions table ── */
+  var sessHtml = '';
+  if (sessions.length === 0) {
+    sessHtml = '<div class="no-sessions">No active sessions</div>';
+  } else {
+    sessHtml =
+      '<table class="sessions-table">' +
+        '<thead><tr>' +
+          '<th>Session</th><th>State</th><th>Request State</th><th>Type</th><th>Adapter</th>' +
+          '<th>Elapsed</th><th>Client</th><th>Procedure</th><th>Thread</th>' +
+        '</tr></thead><tbody>';
+    sessions.forEach(function(s) {
+      var ci = s.clientConnInfo || {};
+      var sid = (s.sessionID || '').substring(0, 8) + '..';
+      var proc = (ci.requestProcedure || '').replace('Progress.Web.InternalWebHandler:', '');
+      sessHtml +=
+        '<tr>' +
+          '<td class="td-id" title="' + escHtml(s.sessionID) + '">' + escHtml(sid) + '</td>' +
+          '<td class="td-state">' + stateBadge(s.sessionState) + '</td>' +
+          '<td class="td-state">' + stateBadge(s.requestState) + '</td>' +
+          '<td class="td-type">'    + escHtml(s.sessionType || '') + '</td>' +
+          '<td class="td-adapter">' + escHtml(s.adapterType || '') + '</td>' +
+          '<td class="td-elapsed">' + (s.elapsedTimeMs || 0) + ' ms</td>' +
+          '<td class="td-client">'  + escHtml(ci.clientName || '') + '</td>' +
+          '<td class="td-proc" title="' + escHtml(ci.requestProcedure||'') + '">' + escHtml(proc) + '</td>' +
+          '<td class="td-thread">'  + escHtml(ci.executerThreadId || '') + '</td>' +
+        '</tr>';
+    });
+    sessHtml += '</tbody></table>';
+  }
+  var sessCard =
+    '<div class="card">' +
+      '<div class="card-title">Live Sessions <span class="card-count">' + sessions.length + '</span></div>' +
+      sessHtml +
+    '</div>';
+
+  /* ── Broker Metrics ── */
+  var brokerMetrics =
+    metricRow('Start Time',       (metrics.startTime || '--').replace('T', '  ').substring(0,22), 'cyan') +
+    metricRow('Access Time',      (metrics.accessTime || '--').replace('T', '  ').substring(0,22), 'muted') +
+    metricRow('Total Requests',   fmtNum(totalReqs),  'blue') +
+    metricRow('Total Reads',      fmtNum(reads),      'blue') +
+    metricRow('Total Writes',     fmtNum(writes),     'green') +
+    metricRow('Read Errors',      rdErr,    rdErr  > 0 ? 'red' : 'green') +
+    metricRow('Write Errors',     wrErr,    wrErr  > 0 ? 'red' : 'green') +
+    metricRow('ABL Waits',        ablWaits,     ablWaits    > 0 ? 'yellow' : 'green') +
+    metricRow('ABL Timeouts',     ablTimeouts,  ablTimeouts > 0 ? 'red'    : 'green');
+
+  /* ── Key Properties ── */
+  var keyProps =
+    metricRow('Min Agents',         props.minAgents || '--',          'cyan') +
+    metricRow('Max Agents',         props.maxAgents || '--',          'cyan') +
+    metricRow('Max Sessions/Agent', props.maxABLSessionsPerAgent || '--', 'blue') +
+    metricRow('Max Connections/Agent', props.maxConnectionsPerAgent || '--', 'blue') +
+    metricRow('Agent Logging Level',props.agentLoggingLevel || '--',  'yellow') +
+    metricRow('Idle Agent Timeout', fmtMs(props.idleAgentTimeout),    'muted') +
+    metricRow('Idle Session Timeout', fmtMs(props.idleSessionTimeout),'muted') +
+    metricRow('Request Wait Timeout', fmtMs(props.requestWaitTimeout),'muted') +
+    metricRow('Collect Metrics',    props.collectMetrics === '1' ? 'YES' : 'NO', props.collectMetrics === '1' ? 'green' : 'red');
+
+  /* ── IO Chart card ── */
+  var ioCard =
+    '<div class="card">' +
+      '<div class="card-title">Reads / Writes Over Time</div>' +
+      '<div class="chart-wrap"><canvas id="ioChart"></canvas></div>' +
+    '</div>';
+
+  var bottomHtml =
+    '<div class="three-col">' +
+      '<div class="card"><div class="card-title">Broker Metrics</div>' + brokerMetrics + '</div>' +
+      '<div class="card"><div class="card-title">Key Properties</div>'  + keyProps     + '</div>' +
+      ioCard +
+    '</div>';
+
+  return kpiHtml + agentTransportHtml + sessCard + bottomHtml;
+}
+
+function kpiCard(cls, label, value, sub, color, fontSize) {
+  return '<div class="kpi-card ' + cls + '">' +
+    '<div class="kpi-label">' + label + '</div>' +
+    '<div class="kpi-value" style="color:' + (color||'var(--text)') + ';font-size:' + (fontSize||'24px') + '">' + value + '</div>' +
+    '<div class="kpi-sub">' + sub + '</div>' +
+  '</div>';
+}
+
+function metricRow(label, value, colorClass) {
+  return '<div class="metric-row">' +
+    '<span class="metric-label">' + escHtml(label) + '</span>' +
+    '<span class="metric-val ' + (colorClass||'') + '">' + escHtml(String(value)) + '</span>' +
+  '</div>';
+}
+
+function fmtNum(n) {
+  return parseInt(n||0).toLocaleString();
+}
+
+/* ── Fetch ── */
+function fetchDashboard() {
+  if (paused) return;
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: buildRpc('oemanager_dashboard', {})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var p = extractPayload(data);
+    if (!p) {
+      $id('liveDot').className = 'live-dot error';
+      $id('lastUpdate').textContent = 'Parse error';
+      return;
+    }
+    if (p.error) {
+      $id('mainContent').innerHTML = '<div class="error-box" style="margin:20px">OEManager error: ' + escHtml(p.error) + '</div>';
+      $id('liveDot').className = 'live-dot error';
+      return;
+    }
+
+    /* Render HTML */
+    $id('mainContent').innerHTML = buildDashboard(p);
+    $id('liveDot').className = 'live-dot';
+
+    /* IO chart - init after DOM render */
+    if (!ioChart) initIoChart();
+
+    /* Update IO history */
+    if (ioChart && p.applications && p.applications[0]) {
+      var m = p.applications[0].metrics || {};
+      var t = new Date().toTimeString().substring(0, 8);
+      ioHistory.labels.push(t);
+      ioHistory.reads.push(m.reads  || 0);
+      ioHistory.writes.push(m.writes || 0);
+      if (ioHistory.labels.length > MAX_IO_POINTS) {
+        ioHistory.labels.shift();
+        ioHistory.reads.shift();
+        ioHistory.writes.shift();
+      }
+      ioChart.data.labels              = ioHistory.labels;
+      ioChart.data.datasets[0].data    = ioHistory.reads;
+      ioChart.data.datasets[1].data    = ioHistory.writes;
+      ioChart.update('none');
+    }
+
+    /* Uptime */
+    if (startTime) $id('tbUptime').textContent = fmtUptime(startTime);
+
+    $id('lastUpdate').textContent = new Date().toTimeString().substring(0, 8);
+  })
+  .catch(function(e) {
+    $id('liveDot').className = 'live-dot error';
+    $id('lastUpdate').textContent = 'Error: ' + e.message;
+    console.error(e);
+  });
+}
+
+function togglePause() {
+  paused = !paused;
+  var btn = $id('btnPause');
+  var dot = $id('liveDot');
+  if (paused) {
+    btn.textContent = '> Resume';
+    btn.classList.add('active');
+    dot.className = 'live-dot paused';
+  } else {
+    btn.textContent = '|| Pause';
+    btn.classList.remove('active');
+    dot.className = 'live-dot';
+    fetchDashboard();
+  }
+}
+
+/* ── Start ── */
+Chart.defaults.color = '#8b949e';
+Chart.defaults.font.family = 'Segoe UI, system-ui, sans-serif';
+Chart.defaults.font.size   = 11;
+fetchDashboard();
+setInterval(fetchDashboard, REFRESH_MS);
+</script>
+</body>
+</html>
