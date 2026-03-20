@@ -1,0 +1,9 @@
+{
+  "name": "deploy_web_file",
+  "description": "Deploys a web file (HTML, JS, CSS) to the PASOE web root. Accepts base64-encoded content in file_content to safely handle UTF-8 including Norwegian characters and emojis. Decodes with BASE64-DECODE and writes with COPY-LOB NO-CONVERT.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"filename": {"type": "string", "description": "Filename to write, e.g. index.html"},"file_content": {"type": "string", "description": "Base64-encoded UTF-8 file content. Encode with btoa() in JavaScript or base64 in any language."},"subfolder": {"type": "string", "description": "Optional subfolder under web root"}},
+    "required": ["filename","file_content"]
+  }
+}
