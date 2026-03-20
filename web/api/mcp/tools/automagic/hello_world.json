@@ -1,0 +1,9 @@
+{
+  "name": "hello_world",
+  "description": "Simple dummy test tool that returns a hello world message.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  }
+}

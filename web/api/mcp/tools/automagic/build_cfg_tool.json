@@ -1,0 +1,9 @@
+{
+  "name": "build_cfg_tool",
+  "description": "Internal builder - writes read_pasoe_configuration.cls to disk.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  }
+}
