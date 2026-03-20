@@ -91,7 +91,9 @@ CLASS web.api.mcp.tools:
          web.api.mcp.tools:InstantiateToolsInDirectory('web\api\mcp\tools\automagic').
          web.api.mcp.tools:InstantiateToolsInDirectory('web\api\mcp\tools\system') . 
          web.api.mcp.tools:InstantiateToolsInDirectory('web\api\mcp\tools\system\database') .
+         web.api.mcp.tools:InstantiateToolsInDirectory('web\api\mcp\tools\system\utility') .
          web.api.mcp.tools:InstantiateToolsInDirectory('web\api\mcp\tools\system\pasoe') .
+         web.api.mcp.tools:InstantiateToolsInDirectory('web\api\mcp\tools\system\git') .
          web.api.mcp.tools:InstantiateToolsInDirectory('web\api\mcp\tools').
          ToolsAreInstantiated = TRUE.
     END. 
