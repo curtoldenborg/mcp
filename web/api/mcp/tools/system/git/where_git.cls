@@ -1,7 +1,7 @@
 USING Progress.Lang.*.
 USING Progress.Json.ObjectModel.*.
 BLOCK-LEVEL ON ERROR UNDO, THROW.
-CLASS web.api.mcp.tools.system.utility.where_git INHERITS web.api.mcp.tools.base.tool :
+CLASS web.api.mcp.tools.system.git.where_git INHERITS web.api.mcp.tools.base.tool :
 
     METHOD PUBLIC OVERRIDE JsonObject Execute(id AS integer, poArguments AS JsonObject):
 
