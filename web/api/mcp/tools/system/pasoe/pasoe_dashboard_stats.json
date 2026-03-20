@@ -1,0 +1,9 @@
+{
+  "name": "pasoe_dashboard_stats",
+  "description": "Returns aggregated PASOE dashboard metrics for today: total requests, status code breakdown (2xx/4xx/5xx), total bytes, hourly request distribution (24 buckets), per-minute sparkline data, and agent log summary (errors, warnings, REQ, APPL counts). Used by the PASOE dashboard web page.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "get_agent_log_tail",
+  "description": "Returns the last N lines of the PASOE agent log (oepas1.agent.YYYY-MM-DD.log) as a JSON array. Used by the PASOE Agent Log Monitor web page.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"lines": {"type": "number", "description": "Number of tail lines to return (default 100, max 200)"},"log_date": {"type": "string", "description": "Date yyyy-mm-dd, defaults to today"}},
+    "required": []
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "check_git_paths",
+  "description": "Checks known default Git for Windows install locations.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  }
+}

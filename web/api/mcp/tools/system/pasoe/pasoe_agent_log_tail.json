@@ -1,0 +1,9 @@
+{
+  "name": "pasoe_agent_log_tail",
+  "description": "Returns lines from the PASOE agent log (oepas1.agent.YYYY-MM-DD.log) as a JSON array.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"log_date": {"type": "string", "description": "Date yyyy-mm-dd, defaults to today"}},
+    "required": []
+  }
+}

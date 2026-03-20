@@ -1,0 +1,9 @@
+{
+  "name": "trim_pasoe",
+  "description": "Trims the PASOE instance using tcman trim to flush idle agents and refresh ABL class cache without a full stop/start restart. Use this to clear class sync issues while keeping the session alive.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"instance": {"type": "string", "description": "PASOE instance name. Defaults to oepas1."}},
+    "required": []
+  }
+}

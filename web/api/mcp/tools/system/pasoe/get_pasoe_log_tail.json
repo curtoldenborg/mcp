@@ -1,0 +1,9 @@
+{
+  "name": "get_pasoe_log_tail",
+  "description": "Returns the last N raw log lines from the PASOE localhost-access log as JSON using a circular buffer. Used by the live traffic monitor web page.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"lines": {"type": "number", "description": "Number of tail lines to return (default 100, max 200)"},"log_date": {"type": "string", "description": "Date yyyy-mm-dd, defaults to today"}},
+    "required": []
+  }
+}

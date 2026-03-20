@@ -1,0 +1,9 @@
+{
+  "name": "pasoe_traffic_log",
+  "description": "Returns all raw log lines from the PASOE localhost-access log as JSON. For live traffic monitor use.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"log_date": {"type": "string", "description": "Date yyyy-mm-dd, defaults to today"}},
+    "required": []
+  }
+}

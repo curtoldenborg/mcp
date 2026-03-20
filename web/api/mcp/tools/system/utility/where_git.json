@@ -1,0 +1,9 @@
+{
+  "name": "where_git",
+  "description": "Runs where git to find the git executable path.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  }
+}
