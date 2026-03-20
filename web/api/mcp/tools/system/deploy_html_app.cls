@@ -2,7 +2,7 @@ USING Progress.Lang.*.
 USING Progress.Json.ObjectModel.*.
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
-CLASS web.api.mcp.tools.automagic.deploy_html_app INHERITS web.api.mcp.tools.base.tool :
+CLASS web.api.mcp.tools.system.deploy_html_app INHERITS web.api.mcp.tools.base.tool :
 
     METHOD PUBLIC OVERRIDE JsonObject Execute(id AS integer, poArguments AS JsonObject):
         DEFINE VARIABLE cPasoeRoot   AS CHARACTER                            NO-UNDO INITIAL 'C:\progress\OE128_64_WRK\oepas1\webapps\ROOT'.
