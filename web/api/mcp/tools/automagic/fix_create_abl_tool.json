@@ -1,0 +1,9 @@
+{
+  "name": "fix_create_abl_tool",
+  "description": "One-time patch: fixes the CHARACTER truncation bug in create_abl_tool.cls by changing cBody and cProps/cTT from CHARACTER to LONGCHAR and switching GetCharacter to GetLongchar for abl_code. Run once, then compile create_abl_tool.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"dry_run": {"type": "boolean", "description": "If true, return patched content without writing to disk"}},
+    "required": []
+  }
+}

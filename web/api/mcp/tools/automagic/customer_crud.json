@@ -1,0 +1,9 @@
+{
+  "name": "customer_crud",
+  "description": "CRUD operations for the Sports2000 Customer table. action=list (filter by name/country/salesRep, returns up to maxRows), action=get (by custNum, all fields), action=create (requires name), action=update (requires custNum, updates only supplied fields), action=delete (requires custNum).",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"action": {"type": "string", "description": "list | get | create | update | delete"},"custNum": {"type": "number", "description": "Customer number - required for get/update/delete"},"name": {"type": "string", "description": "Customer name (partial filter for list, value for create/update)"},"address": {"type": "string", "description": "Street address"},"address2": {"type": "string", "description": "Address line 2"},"city": {"type": "string", "description": "City"},"state": {"type": "string", "description": "State or region"},"postalCode": {"type": "string", "description": "Postal or zip code"},"country": {"type": "string", "description": "Country (exact filter for list, value for create/update)"},"phone": {"type": "string", "description": "Phone number"},"fax": {"type": "string", "description": "Fax number"},"emailAddress": {"type": "string", "description": "Email address"},"contact": {"type": "string", "description": "Contact person"},"salesRep": {"type": "string", "description": "Sales rep code (exact filter for list, value for create/update)"},"creditLimit": {"type": "number", "description": "Credit limit amount"},"discount": {"type": "number", "description": "Discount percentage 0-100"},"terms": {"type": "string", "description": "Payment terms"},"comments": {"type": "string", "description": "Free-text comments"},"maxRows": {"type": "number", "description": "Max rows returned by list, default 100"}},
+    "required": ["action"]
+  }
+}

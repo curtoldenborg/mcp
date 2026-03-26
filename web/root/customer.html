@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kundevedlikehold – Sports2000</title>
+<style>
+  :root {
+    --bg: #f0f2f5;
+    --surface: #ffffff;
+    --primary: #1a56db;
+    --primary-dark: #1240aa;
+    --primary-light: #e8efff;
+    --danger: #e02424;
+    --danger-light: #fde8e8;
+    --success: #057a55;
+    --success-light: #def7ec;
+    --border: #dde2ea;
+    --text: #1a202c;
+    --text-muted: #6b7280;
+    --shadow: 0 2px 8px rgba(0,0,0,.10);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,.14);
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+
+  /* TOPBAR */
+  .topbar {
+    background: var(--primary);
+    color: #fff;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  }
+  .topbar h1 { font-size: 18px; font-weight: 600; flex: 1; }
+  .topbar span { font-size: 13px; opacity: .8; }
+
+  /* MAIN LAYOUT */
+  .layout { display: flex; height: calc(100vh - 56px); overflow: hidden; }
+
+  /* LEFT PANEL – grid */
+  .panel-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+  }
+
+  /* TOOLBAR */
+  .toolbar {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    background: #fafbfc;
+  }
+  .toolbar input, .toolbar select {
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0 10px;
+    font-size: 13px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .toolbar input:focus, .toolbar select:focus { border-color: var(--primary); }
+  .toolbar input[type=text] { width: 200px; }
+  .toolbar select { width: 140px; }
+  .toolbar-spacer { flex: 1; }
+  .count-badge {
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  /* BUTTONS */
+  .btn {
+    height: 34px;
+    padding: 0 14px;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background .15s, transform .08s;
+    white-space: nowrap;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-danger  { background: var(--danger); color: #fff; }
+  .btn-danger:hover { background: #c81e1e; }
+  .btn-ghost   { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--bg); }
+  .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* TABLE */
+  .table-wrap { flex: 1; overflow-y: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead { position: sticky; top: 0; z-index: 2; background: #f1f3f6; }
+  th {
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    user-select: none;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  th:hover { color: var(--primary); }
+  th.sorted-asc::after  { content: ' ↑'; color: var(--primary); }
+  th.sorted-desc::after { content: ' ↓'; color: var(--primary); }
+  td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #f0f1f3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+  tr.data-row { cursor: pointer; transition: background .1s; }
+  tr.data-row:hover  { background: var(--primary-light); }
+  tr.data-row.active { background: #dbeafe; }
+  .td-num  { text-align: right; font-variant-numeric: tabular-nums; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-rep { background: #e0f2fe; color: #0369a1; }
+
+  /* EMPTY / LOADING */
+  .state-msg {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .state-msg .icon { font-size: 36px; margin-bottom: 8px; }
+  .spinner {
+    display: inline-block;
+    width: 20px; height: 20px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* RIGHT PANEL – form */
+  .panel-right {
+    width: 420px;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    overflow: hidden;
+    transition: width .2s;
+  }
+  .panel-right.closed { width: 0; overflow: hidden; }
+  .form-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fafbfc;
+    min-width: 380px;
+  }
+  .form-header h2 { font-size: 15px; font-weight: 600; flex: 1; }
+  .form-body { flex: 1; overflow-y: auto; padding: 16px 20px; min-width: 380px; }
+  .form-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    background: #fafbfc;
+    min-width: 380px;
+  }
+
+  /* FORM FIELDS */
+  .field-group { margin-bottom: 14px; }
+  .field-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-bottom: 4px;
+  }
+  .field-group input, .field-group textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 7px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .field-group input:focus, .field-group textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(26,86,219,.12);
+  }
+  .field-group input[readonly] { background: #f7f8fa; color: var(--text-muted); cursor: not-allowed; }
+  .field-group textarea { resize: vertical; min-height: 60px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--primary);
+    margin: 16px 0 10px;
+    padding-bottom: 4px;
+    border-bottom: 2px solid var(--primary-light);
+  }
+
+  /* TOAST */
+  .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    padding: 12px 18px;
+    border-radius: var(--radius);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    animation: slideIn .25s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  .toast-success { background: var(--success); }
+  .toast-error   { background: var(--danger); }
+
+  /* CONFIRM DIALOG */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.4);
+    z-index: 8000;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .dialog {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 28px;
+    max-width: 380px;
+    width: 90%;
+    box-shadow: var(--shadow-lg);
+  }
+  .dialog h3 { font-size: 16px; margin-bottom: 10px; }
+  .dialog p  { color: var(--text-muted); font-size: 13px; margin-bottom: 20px; }
+  .dialog-buttons { display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* BALANCE color */
+  .neg { color: var(--danger); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🏢 Kundevedlikehold</h1>
+  <span id="serverStatus">Sports2000 · PASOE</span>
+</div>
+
+<div class="layout">
+  <!-- LEFT: GRID -->
+  <div class="panel-left">
+    <div class="toolbar">
+      <input type="text" id="filterName" placeholder="🔍 Søk navn..." oninput="debounceLoad()">
+      <input type="text" id="filterCountry" placeholder="Land..." oninput="debounceLoad()">
+      <input type="text" id="filterRep" placeholder="SalesRep..." oninput="debounceLoad()">
+      <button class="btn btn-ghost btn-sm" onclick="clearFilters()">✕ Nullstill</button>
+      <div class="toolbar-spacer"></div>
+      <span class="count-badge" id="countBadge"></span>
+      <button class="btn btn-primary btn-sm" onclick="newCustomer()">+ Ny kunde</button>
+    </div>
+
+    <div class="table-wrap" id="tableWrap">
+      <div class="state-msg"><div class="spinner"></div><p style="margin-top:12px">Laster...</p></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: FORM -->
+  <div class="panel-right closed" id="panelRight">
+    <div class="form-header">
+      <div>
+        <h2 id="formTitle">Kunde</h2>
+        <div style="font-size:11px;color:var(--text-muted)" id="formSubtitle"></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeForm()">✕</button>
+    </div>
+    <div class="form-body" id="formBody"></div>
+    <div class="form-footer" id="formFooter"></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+const MCP_URL = '/web/mcp';   // relative – works on same host
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let allRows    = [];
+let activeNum  = null;
+let sortCol    = 'CustNum';
+let sortAsc    = true;
+let debTimer   = null;
+let formMode   = null;   // 'new' | 'edit'
+
+// ─── MCP CALL ─────────────────────────────────────────────────────────────────
+let mcpId = 1;
+async function mcpCall(toolName, args) {
+  const body = {
+    jsonrpc: '2.0',
+    id: mcpId++,
+    method: 'tools/call',
+    params: { name: toolName, arguments: args }
+  };
+  const res = await fetch(MCP_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const json = await res.json();
+
+  // Unwrap MCP envelope: result.content[0].text  OR  result directly
+  let data = json;
+  if (json.result?.content?.[0]?.text) {
+    try { data = JSON.parse(json.result.content[0].text); } catch(e) { data = json.result; }
+  } else if (json.result) {
+    data = json.result;
+  }
+  return data;
+}
+
+// ─── LOAD GRID ────────────────────────────────────────────────────────────────
+async function loadGrid() {
+  const args = { action: 'list', maxRows: 500 };
+  const n = document.getElementById('filterName').value.trim();
+  const c = document.getElementById('filterCountry').value.trim();
+  const r = document.getElementById('filterRep').value.trim();
+  if (n) args.name      = n;
+  if (c) args.country   = c;
+  if (r) args.salesRep  = r;
+
+  document.getElementById('tableWrap').innerHTML =
+    '<div class="state-msg"><div class="spinner"></div><p style="margin-top:12px">Laster...</p></div>';
+
+  try {
+    const data = await mcpCall('customer_crud', args);
+    if (!data.success && data.customers === undefined) {
+      showError('Feil fra server: ' + (data.error || JSON.stringify(data)));
+      return;
+    }
+    allRows = data.customers || [];
+    renderGrid();
+    document.getElementById('countBadge').textContent = allRows.length + ' kunder';
+  } catch(e) {
+    document.getElementById('tableWrap').innerHTML =
+      `<div class="state-msg"><div class="icon">⚠️</div><p>${e.message}</p></div>`;
+  }
+}
+
+function debounceLoad() {
+  clearTimeout(debTimer);
+  debTimer = setTimeout(loadGrid, 350);
+}
+
+function clearFilters() {
+  document.getElementById('filterName').value = '';
+  document.getElementById('filterCountry').value = '';
+  document.getElementById('filterRep').value = '';
+  loadGrid();
+}
+
+// ─── RENDER GRID ─────────────────────────────────────────────────────────────
+const COLS = [
+  { key: 'CustNum',     label: '#',          cls: 'td-num' },
+  { key: 'Name',        label: 'Navn',       cls: '' },
+  { key: 'City',        label: 'By',         cls: '' },
+  { key: 'Country',     label: 'Land',       cls: '' },
+  { key: 'Phone',       label: 'Telefon',    cls: '' },
+  { key: 'SalesRep',    label: 'Rep',        cls: '' },
+  { key: 'CreditLimit', label: 'Kreditt',    cls: 'td-num' },
+  { key: 'Balance',     label: 'Saldo',      cls: 'td-num' },
+  { key: 'Discount',    label: 'Rabatt %',   cls: 'td-num' },
+];
+
+function sortedRows() {
+  return [...allRows].sort((a, b) => {
+    let av = a[sortCol], bv = b[sortCol];
+    if (typeof av === 'string') av = av.toLowerCase();
+    if (typeof bv === 'string') bv = bv.toLowerCase();
+    if (av < bv) return sortAsc ? -1 : 1;
+    if (av > bv) return sortAsc ?  1 : -1;
+    return 0;
+  });
+}
+
+function renderGrid() {
+  const rows = sortedRows();
+  if (rows.length === 0) {
+    document.getElementById('tableWrap').innerHTML =
+      '<div class="state-msg"><div class="icon">📭</div><p>Ingen kunder funnet</p></div>';
+    return;
+  }
+
+  const fmt = new Intl.NumberFormat('no-NO', { minimumFractionDigits: 2 });
+
+  const thead = COLS.map(c => {
+    let cls = '';
+    if (c.key === sortCol) cls = sortAsc ? 'sorted-asc' : 'sorted-desc';
+    return `<th class="${cls}" onclick="setSort('${c.key}')">${c.label}</th>`;
+  }).join('');
+
+  const tbody = rows.map(r => {
+    const isActive = r.CustNum === activeNum;
+    const cells = COLS.map(c => {
+      let v = r[c.key] ?? '';
+      if (c.key === 'CreditLimit' || c.key === 'Balance') {
+        const cls2 = c.key === 'Balance' && v < 0 ? 'neg' : '';
+        v = `<span class="${cls2}">${fmt.format(v)}</span>`;
+      } else if (c.key === 'Discount') {
+        v = v ? v + '%' : '';
+      } else if (c.key === 'SalesRep' && v) {
+        v = `<span class="badge badge-rep">${v}</span>`;
+      }
+      return `<td class="${c.cls}" title="${r[c.key] ?? ''}">${v}</td>`;
+    }).join('');
+    return `<tr class="data-row${isActive?' active':''}" onclick="selectRow(${r.CustNum})">${cells}</tr>`;
+  }).join('');
+
+  document.getElementById('tableWrap').innerHTML =
+    `<table><thead><tr>${thead}</tr></thead><tbody>${tbody}</tbody></table>`;
+}
+
+function setSort(col) {
+  if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
+  renderGrid();
+}
+
+// ─── SELECT ROW ──────────────────────────────────────────────────────────────
+async function selectRow(custNum) {
+  activeNum = custNum;
+  renderGrid();
+  formMode = 'edit';
+  document.getElementById('formTitle').textContent = 'Rediger kunde';
+  document.getElementById('formSubtitle').textContent = 'CustNum: ' + custNum;
+  showPanel();
+  document.getElementById('formBody').innerHTML = '<div class="state-msg"><div class="spinner"></div></div>';
+  document.getElementById('formFooter').innerHTML = '';
+
+  try {
+    const data = await mcpCall('customer_crud', { action: 'get', custNum });
+    if (!data.success) { showError(data.error || 'Fant ikke kunden'); return; }
+    renderForm(data, false);
+  } catch(e) { showError(e.message); }
+}
+
+// ─── NEW CUSTOMER ─────────────────────────────────────────────────────────────
+function newCustomer() {
+  activeNum = null;
+  renderGrid();
+  formMode = 'new';
+  document.getElementById('formTitle').textContent = 'Ny kunde';
+  document.getElementById('formSubtitle').textContent = 'Fyll inn og lagre';
+  showPanel();
+  renderForm({}, true);
+}
+
+// ─── RENDER FORM ─────────────────────────────────────────────────────────────
+function field(id, label, value, readonly=false, type='text') {
+  const ro = readonly ? 'readonly' : '';
+  return `<div class="field-group">
+    <label>${label}</label>
+    <input type="${type}" id="f_${id}" value="${esc(value)}" ${ro}>
+  </div>`;
+}
+function fieldArea(id, label, value) {
+  return `<div class="field-group">
+    <label>${label}</label>
+    <textarea id="f_${id}">${esc(value)}</textarea>
+  </div>`;
+}
+function esc(v) { return String(v ?? '').replace(/"/g, '&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderForm(d, isNew) {
+  const ro = !isNew;  // CustNum readonly when editing
+  const html = `
+    <div class="section-title">Hovudinfo</div>
+    ${field('CustNum','Kundenummer', d.CustNum ?? '', !isNew || false, 'text')}
+    ${field('Name','Navn *', d.Name ?? '')}
+    ${field('Contact','Kontaktperson', d.Contact ?? '')}
+    ${field('EmailAddress','E-post', d.EmailAddress ?? '', false, 'email')}
+    ${field('Phone','Telefon', d.Phone ?? '')}
+    ${field('Fax','Faks', d.Fax ?? '')}
+
+    <div class="section-title">Adresse</div>
+    ${field('Address','Gate/adresse', d.Address ?? '')}
+    ${field('Address2','Adresse 2', d.Address2 ?? '')}
+    <div class="row2">
+      ${field('PostalCode','Postnummer', d.PostalCode ?? '')}
+      ${field('City','By', d.City ?? '')}
+    </div>
+    <div class="row2">
+      ${field('State','Stat/region', d.State ?? '')}
+      ${field('Country','Land', d.Country ?? '')}
+    </div>
+
+    <div class="section-title">Handel</div>
+    <div class="row2">
+      ${field('SalesRep','Selger (kode)', d.SalesRep ?? '')}
+      ${field('Terms','Betalingsbetingelser', d.Terms ?? '')}
+    </div>
+    <div class="row2">
+      ${field('CreditLimit','Kredittgrense', d.CreditLimit ?? 0, false, 'number')}
+      ${field('Discount','Rabatt %', d.Discount ?? 0, false, 'number')}
+    </div>
+    ${isNew ? '' : `<div class="field-group"><label>Saldo</label><input type="text" value="${esc(d.Balance ?? 0)}" readonly></div>`}
+
+    <div class="section-title">Kommentarer</div>
+    ${fieldArea('Comments','Kommentarer', d.Comments ?? '')}
+  `;
+
+  // CustNum is auto-assigned on create — hide it
+  document.getElementById('formBody').innerHTML = html;
+  if (isNew) {
+    document.getElementById('f_CustNum').closest('.field-group').style.display = 'none';
+  } else {
+    document.getElementById('f_CustNum').readOnly = true;
+  }
+
+  const footer = document.getElementById('formFooter');
+  if (isNew) {
+    footer.innerHTML = `
+      <button class="btn btn-ghost" onclick="closeForm()">Avbryt</button>
+      <button class="btn btn-primary" onclick="saveNew()">💾 Lagre ny</button>
+    `;
+  } else {
+    footer.innerHTML = `
+      <button class="btn btn-danger btn-ghost" style="margin-right:auto;border-color:var(--danger);color:var(--danger)"
+        onclick="confirmDelete(${d.CustNum},'${esc(d.Name)}')">🗑 Slett</button>
+      <button class="btn btn-ghost" onclick="closeForm()">Avbryt</button>
+      <button class="btn btn-primary" onclick="saveEdit(${d.CustNum})">💾 Lagre</button>
+    `;
+  }
+}
+
+function readForm() {
+  const fields = ['Name','Contact','EmailAddress','Phone','Fax',
+    'Address','Address2','PostalCode','City','State','Country',
+    'SalesRep','Terms','Comments'];
+  const args = {};
+  fields.forEach(f => {
+    const el = document.getElementById('f_' + f);
+    if (el && el.value.trim() !== '') args[f === 'EmailAddress' ? 'emailAddress' : f.charAt(0).toLowerCase() + f.slice(1)] = el.value.trim();
+    // map field names to API param names
+  });
+  // Fix specific mappings
+  const map = {
+    'emailAddress': document.getElementById('f_EmailAddress')?.value.trim(),
+    'postalCode':   document.getElementById('f_PostalCode')?.value.trim(),
+    'salesRep':     document.getElementById('f_SalesRep')?.value.trim(),
+  };
+  Object.entries(map).forEach(([k,v]) => { if (v) args[k] = v; });
+  // credit + discount
+  const cl = document.getElementById('f_CreditLimit')?.value;
+  const dc = document.getElementById('f_Discount')?.value;
+  if (cl !== '') args.creditLimit = parseFloat(cl) || 0;
+  if (dc !== '') args.discount    = parseInt(dc) || 0;
+  return args;
+}
+
+function readFormClean() {
+  // Build clean args directly from form IDs
+  const a = {};
+  const str = id => document.getElementById('f_'+id)?.value.trim() || '';
+  const num = id => { const v = document.getElementById('f_'+id)?.value; return v !== '' ? parseFloat(v)||0 : undefined; };
+
+  if (str('Name'))        a.name         = str('Name');
+  if (str('Contact'))     a.contact      = str('Contact');
+  if (str('EmailAddress')) a.emailAddress = str('EmailAddress');
+  if (str('Phone'))       a.phone        = str('Phone');
+  if (str('Fax'))         a.fax          = str('Fax');
+  if (str('Address'))     a.address      = str('Address');
+  if (str('Address2'))    a.address2     = str('Address2');
+  if (str('PostalCode'))  a.postalCode   = str('PostalCode');
+  if (str('City'))        a.city         = str('City');
+  if (str('State'))       a.state        = str('State');
+  if (str('Country'))     a.country      = str('Country');
+  if (str('SalesRep'))    a.salesRep     = str('SalesRep');
+  if (str('Terms'))       a.terms        = str('Terms');
+  if (str('Comments'))    a.comments     = str('Comments');
+
+  const cl = document.getElementById('f_CreditLimit')?.value;
+  const dc = document.getElementById('f_Discount')?.value;
+  if (cl !== undefined && cl !== '') a.creditLimit = parseFloat(cl) || 0;
+  if (dc !== undefined && dc !== '') a.discount    = parseInt(dc)   || 0;
+  return a;
+}
+
+// ─── SAVE NEW ─────────────────────────────────────────────────────────────────
+async function saveNew() {
+  const args = readFormClean();
+  if (!args.name) { showError('Navn er påkrevd'); return; }
+  args.action = 'create';
+  setFormLoading(true);
+  try {
+    const data = await mcpCall('customer_crud', args);
+    if (data.success) {
+      showSuccess('Kunde opprettet: ' + data.Name + ' (#' + data.CustNum + ')');
+      activeNum = data.CustNum;
+      closeForm();
+      await loadGrid();
+      selectRow(data.CustNum);
+    } else {
+      showError(data.error || 'Feil ved opprettelse');
+    }
+  } catch(e) { showError(e.message); }
+  setFormLoading(false);
+}
+
+// ─── SAVE EDIT ────────────────────────────────────────────────────────────────
+async function saveEdit(custNum) {
+  const args = readFormClean();
+  args.action  = 'update';
+  args.custNum = custNum;
+  setFormLoading(true);
+  try {
+    const data = await mcpCall('customer_crud', args);
+    if (data.success) {
+      showSuccess('Lagret: ' + data.Name);
+      await loadGrid();
+      selectRow(custNum);
+    } else {
+      showError(data.error || 'Feil ved lagring');
+    }
+  } catch(e) { showError(e.message); }
+  setFormLoading(false);
+}
+
+// ─── DELETE ───────────────────────────────────────────────────────────────────
+function confirmDelete(custNum, name) {
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `
+    <div class="dialog">
+      <h3>Slett kunde?</h3>
+      <p>Er du sikker på at du vil slette <strong>${esc(name)}</strong> (#${custNum})?<br>Dette kan ikke angres.</p>
+      <div class="dialog-buttons">
+        <button class="btn btn-ghost" onclick="this.closest('.overlay').remove()">Avbryt</button>
+        <button class="btn btn-danger" onclick="doDelete(${custNum}); this.closest('.overlay').remove()">Slett</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+async function doDelete(custNum) {
+  try {
+    const data = await mcpCall('customer_crud', { action: 'delete', custNum });
+    if (data.success) {
+      showSuccess(data.message);
+      closeForm();
+      await loadGrid();
+    } else {
+      showError(data.error || 'Feil ved sletting');
+    }
+  } catch(e) { showError(e.message); }
+}
+
+// ─── PANEL HELPERS ────────────────────────────────────────────────────────────
+function showPanel()  { document.getElementById('panelRight').classList.remove('closed'); }
+function closeForm()  {
+  document.getElementById('panelRight').classList.add('closed');
+  activeNum = null;
+  renderGrid();
+}
+function setFormLoading(on) {
+  document.querySelectorAll('#formFooter .btn').forEach(b => b.disabled = on);
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function toast(msg, type) {
+  const el = document.createElement('div');
+  el.className = 'toast toast-' + type;
+  el.textContent = (type === 'success' ? '✓ ' : '✗ ') + msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+function showSuccess(msg) { toast(msg, 'success'); }
+function showError(msg)   { toast(msg, 'error'); }
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+loadGrid();
+</script>
+</body>
+</html>

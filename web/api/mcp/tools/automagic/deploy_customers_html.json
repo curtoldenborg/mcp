@@ -1,0 +1,9 @@
+{
+  "name": "deploy_customers_html",
+  "description": "Deploys the customer maintenance HTML app to PASOE. One-time use tool.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"dummy": {"type": "string", "description": "Not used"}},
+    "required": []
+  }
+}

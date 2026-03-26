@@ -1,0 +1,9 @@
+{
+  "name": "customer_browser_data",
+  "description": "Returns paginated customer data from Sports2000 Customer table. Supports page navigation (25 rows/page), filter on Name/City/Country, sort by CustNum or Name. Response: page, totalRows, totalPages, rowsPerPage, rows[].",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"page": {"type": "string", "description": "Page number 1-based, 25 rows per page"},"filter": {"type": "string", "description": "Filter: Name/City/Country BEGINS this value"},"sortBy": {"type": "string", "description": "Sort by CustNum (default) or Name"}},
+    "required": []
+  }
+}
