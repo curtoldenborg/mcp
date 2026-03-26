@@ -26,8 +26,12 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
     
     
     METHOD OVERRIDE PROTECTED INTEGER HandlePost(INPUT poRequest AS OpenEdge.Web.IWebRequest):
-        DEFINE VARIABLE eMcpMethodEnum AS web.api.mcp.methodenum NO-UNDO.     
 
+        DEFINE VARIABLE eMcpMethodEnum AS web.api.mcp.methodenum NO-UNDO.     
+        DEFINE VARIABLE cSessionId AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE oHeader    AS OpenEdge.Net.HTTP.HttpHeader NO-UNDO.
+
+     
         eMcpMethodEnum = getMcpMethod(poRequest).  
         IF eMcpMethodEnum  = web.api.mcp.methodenum:Tools_Call AND 
           ( getMcpToolName(poRequest) MATCHES "*_log_tail" OR
@@ -37,6 +41,12 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
         
         doLogBodyToFile(CAST(poRequest:Entity, JsonObject),'Request').
         IF dologging THEN LOG-MANAGER:WRITE-MESSAGE("Request " + STRING(eMcpMethodEnum) ,"REQ").  
+     
+        IF poRequest:HasHeader("Mcp-Session-Id":U) THEN DO:
+            oHeader    = poRequest:GetHeader("Mcp-Session-Id":U).
+            cSessionId = oHeader:Value.
+            IF dologging THEN LOG-MANAGER:WRITE-MESSAGE("Sessionid: " + STRING(cSessionId) ,"REQ").  
+        END.
                
         CASE eMcpMethodEnum:
             WHEN web.api.mcp.methodenum:Initialize                THEN  mcp_Initialize(poRequest).
@@ -87,6 +97,30 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
         COPY-LOB FROM cRawJson TO FILE cFile NO-CONVERT.       
     END. 
   
+
+/*------------------------------------------------------------------------------
+    Purpose: Extract and validate the Mcp-Session-Id from an incoming request.
+             Returns the session ID if found and valid, empty string if not.
+------------------------------------------------------------------------------*/
+METHOD PROTECTED CHARACTER getSessionId(INPUT poRequest AS OpenEdge.Web.IWebRequest):
+
+    DEFINE VARIABLE cSessionId AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE oHeader    AS OpenEdge.Net.HTTP.HttpHeader NO-UNDO.
+
+    IF poRequest:HasHeader("Mcp-Session-Id":U) THEN DO:
+        oHeader    = poRequest:GetHeader("Mcp-Session-Id":U).
+        cSessionId = oHeader:Value.
+    END.
+
+    IF cSessionId = ? OR cSessionId = "" THEN DO:
+        LOG-MANAGER:WRITE-MESSAGE("getSessionId: No Mcp-Session-Id header found", "WARN").
+        RETURN "".
+    END.
+
+    LOG-MANAGER:WRITE-MESSAGE("getSessionId: " + cSessionId, "LOG").
+    RETURN cSessionId.
+
+END METHOD.
   
     METHOD PROTECTED INTEGER mcp_notifications_initialized(INPUT poRequest AS OpenEdge.Web.IWebRequest):
         DEFINE VARIABLE oResponse AS OpenEdge.Net.HTTP.IHttpResponse NO-UNDO.
@@ -251,7 +285,7 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
         
     END. 
 
-    
+/*    
     METHOD PROTECTED INTEGER mcp_initialize(INPUT poRequest AS OpenEdge.Web.IWebRequest):
         DEFINE VARIABLE response   AS WebResponse                     NO-UNDO.
         DEFINE VARIABLE oResponse  AS OpenEdge.Net.HTTP.IHttpResponse NO-UNDO.
@@ -307,6 +341,96 @@ CLASS web.api.rest.mcphandler INHERITS OpenEdge.Web.WebHandler:
             DELETE OBJECT oRoot NO-ERROR.     
         END FINALLY.
     END. 
+*/
+
+METHOD PROTECTED INTEGER mcp_initialize(INPUT poRequest AS OpenEdge.Web.IWebRequest):
+    DEFINE VARIABLE response        AS WebResponse                     NO-UNDO.
+    DEFINE VARIABLE oResponse       AS OpenEdge.Net.HTTP.IHttpResponse NO-UNDO.
+    DEFINE VARIABLE oWriter         AS OpenEdge.Web.WebResponseWriter  NO-UNDO.
+    DEFINE VARIABLE oRoot           AS JsonObject                      NO-UNDO.
+    DEFINE VARIABLE oResult         AS JsonObject                      NO-UNDO.
+    DEFINE VARIABLE oCapabilities   AS JsonObject                      NO-UNDO.
+    DEFINE VARIABLE oToolsCap       AS JsonObject                      NO-UNDO.
+    DEFINE VARIABLE oServInfo       AS JsonObject                      NO-UNDO.
+    DEFINE VARIABLE oRequest        AS JsonObject                      NO-UNDO.
+    DEFINE VARIABLE oParams         AS JsonObject                      NO-UNDO.
+    DEFINE VARIABLE iRequestId      AS INTEGER                         INIT 0 NO-UNDO.
+    DEFINE VARIABLE cProtocolVersion AS CHARACTER                      INIT "2025-03-26" NO-UNDO.
+    DEFINE VARIABLE cSessionId      AS CHARACTER                       NO-UNDO.
+    DEFINE VARIABLE oHeader    AS OpenEdge.Net.HTTP.HttpHeader      NO-UNDO.
+
+
+    oRequest = CAST(poRequest:Entity, JsonObject).
+
+    /* Get request id */
+    IF oRequest:Has("id") THEN iRequestId = oRequest:GetInteger("id").
+
+    /* Echo back the client's requested protocol version */
+    IF oRequest:Has("params") THEN DO:
+        oParams = oRequest:GetJsonObject("params").
+        IF oParams:Has("protocolVersion") THEN
+            cProtocolVersion = oParams:GetCharacter("protocolVersion").
+    END.
+
+    cSessionId = web.api.mcp.session:GenerateSessionId().
+    web.api.mcp.session:RegisterSession(cSessionId).
+    /* then set Mcp-Session-Id response header */
+
+    /* Store session as unauthenticated - hook into your session store here */
+    /* e.g. mcp_sessions:Add(cSessionId, FALSE)  */
+
+    /* Build tools capability with listChanged: true */
+    oToolsCap = NEW JsonObject().
+    oToolsCap:Add("listChanged", TRUE).
+
+    /* Build capabilities object */
+    oCapabilities = NEW JsonObject().
+    oCapabilities:Add("tools",   oToolsCap).
+    oCapabilities:Add("logging", NEW JsonObject()).
+
+    /* Build serverInfo */
+    oServInfo = NEW JsonObject().
+    oServInfo:Add("name",    "Sports2000_database").
+    oServInfo:Add("version", "1.0.0").
+
+    /* Build result */
+    oResult = NEW JsonObject().
+    oResult:Add("protocolVersion", cProtocolVersion).
+    oResult:Add("capabilities",    oCapabilities).
+    oResult:Add("serverInfo",      oServInfo).
+
+    /* Build root JSON-RPC response */
+    oRoot = NEW JsonObject().
+    oRoot:Add("jsonrpc", "2.0").
+    oRoot:Add("id",      iRequestId).
+    oRoot:Add("result",  oResult).
+
+    /* Prepare HTTP response */
+    oResponse = NEW WebResponse().
+    oResponse:StatusCode  = INTEGER(StatusCodeEnum:OK).
+    oResponse:ContentType = "application/json":u.
+
+    /* Add Mcp-Session-Id header */
+    oHeader = NEW OpenEdge.Net.HTTP.HttpHeader("Mcp-Session-Id", cSessionId).
+    oResponse:SetHeader(oHeader).
+
+    oResponse:Entity = oRoot.
+
+    LOG-MANAGER:WRITE-MESSAGE('mcp_initialize:Complete - Session: ' + cSessionId, 'LOG').
+    doLogBodyToFile(oRoot, 'Response').
+
+    oWriter = NEW WebResponseWriter(oResponse).
+    oWriter:Open().
+    oWriter:Close().
+
+    FINALLY:
+        DELETE OBJECT oResponse  NO-ERROR.
+        DELETE OBJECT oWriter    NO-ERROR.
+        DELETE OBJECT oRoot      NO-ERROR.
+    END FINALLY.
+END.
+
+
       
     METHOD OVERRIDE PROTECTED INTEGER HandleGet(INPUT poRequest AS OpenEdge.Web.IWebRequest):
         LOG-MANAGER:WRITE-MESSAGE("Method=" + quoter(poRequest:Method),"REQUEST").

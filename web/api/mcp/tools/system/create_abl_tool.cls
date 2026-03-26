@@ -65,12 +65,12 @@ CLASS web.api.mcp.tools.system.create_abl_tool INHERITS web.api.mcp.tools.base.t
     DEFINE VARIABLE cOut      AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE cName     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDesc     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cBody     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBody     AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE oParams   AS Progress.Json.ObjectModel.JsonArray NO-UNDO.
     DEFINE VARIABLE oTables   AS Progress.Json.ObjectModel.JsonArray NO-UNDO.
     DEFINE VARIABLE i         AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cTT       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cProps    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTT       AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE cProps    AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE cRequired AS CHARACTER NO-UNDO.
     DEFINE VARIABLE oP        AS Progress.Json.ObjectModel.JsonObject NO-UNDO.
     DEFINE VARIABLE oT        AS Progress.Json.ObjectModel.JsonObject NO-UNDO.
@@ -78,7 +78,7 @@ CLASS web.api.mcp.tools.system.create_abl_tool INHERITS web.api.mcp.tools.base.t
     ASSIGN
         cName   = poArgs:GetCharacter("tool_name")
         cDesc   = poArgs:GetCharacter("tool_description")
-        cBody   = poArgs:GetCharacter("abl_code")
+        cBody   = poArgs:Getlongchar("abl_code")
         oParams = poArgs:GetJsonArray("parameters")
         oTables = poArgs:GetJsonArray("temp_tables") NO-ERROR.
 

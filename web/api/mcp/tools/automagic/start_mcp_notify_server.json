@@ -1,0 +1,9 @@
+{
+  "name": "start_mcp_notify_server",
+  "description": "Writes mcp_notify_server.p and a launch .bat to C:\projects\mcp\mcp\ and starts the ABL batch notification server. The server keeps SERVER-SOCKET connections open on port 7890 and broadcasts notifications/tools/list_changed to all connected MCP clients whenever signal_tools_changed increments the tool-notify.trigger counter file. Returns server_file, bat_file, pid_file and trigger_file paths.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {"port": {"type": "string", "description": "TCP port for notification socket. Default 7890."}},
+    "required": []
+  }
+}
