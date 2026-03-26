@@ -1,0 +1,13 @@
+[26/03/25@15:08:29.885+0100] P-024164 T-028340 1 4GL MCPN           MCP notify server started. Port: 7999 | Started: 25/03/2026 15:08:29.886+01:00
+[26/03/25@15:08:41.536+0100] P-024164 T-028340 1 4GL MCPN           NewClient
+[26/03/25@15:08:41.537+0100] P-024164 T-028340 1 4GL -- Mismatched number of parameters passed to routine ClientRead c:\projects\mcp\mcp\temp\p40756_notifyserver.p.cmp. (3234)
+[26/03/25@15:08:41.537+0100] P-024164 T-028340 1 4GL -- ** ABL Debug-Alert Stack Trace **
+[26/03/25@15:08:41.537+0100] P-024164 T-028340 1 4GL -- --> ClientRead c:\projects\mcp\mcp\temp\p40756_notifyserver.p.cmp at line 0  (c:\projects\mcp\mcp\temp\p40756_notifyserver.p.cmp)
+[26/03/25@15:08:41.537+0100] P-024164 T-028340 1 4GL --     c:\projects\mcp\mcp\temp\p40756_notifyserver.p.cmp at line 47  (c:\projects\mcp\mcp\temp\p40756_notifyserver.p.cmp)
+[26/03/25@15:08:51.632+0100] P-024164 T-028340 1 4GL INFO           Shutdown completed,PID file removed!
+[26/03/25@15:12:11.535+0100] P-024164 T-028340 1 4GL MCPN           MCP notify server started. Port: 7999 | Started: 25/03/2026 15:12:11.536+01:00
+[26/03/25@15:13:02.140+0100] P-024164 T-028340 1 4GL INFO           Shutdown completed,PID file removed!
+[26/03/25@15:13:54.972+0100] P-024164 T-028340 1 4GL MCPN           MCP notify server started. Port: 7999 | Started: 25/03/2026 15:13:54.972+01:00
+[26/03/25@15:14:22.834+0100] P-024164 T-028340 1 4GL INFO           Shutdown completed,PID file removed!
+[26/03/25@15:14:36.764+0100] P-024164 T-028340 1 4GL MCPN           MCP notify server started. Port: 7999 | Started: 25/03/2026 15:14:36.764+01:00
+[26/03/25@15:14:54.292+0100] P-024164 T-028340 1 4GL INFO           Shutdown completed,PID file removed!
