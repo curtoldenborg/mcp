@@ -1,5 +1,6 @@
 # Ignore the entire temp directory
 temp/
+log/
 
 # Ignore OpenEdge temporary/local files
 lbia*
